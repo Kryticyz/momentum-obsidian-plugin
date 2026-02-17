@@ -1,0 +1,15 @@
+{
+  "name": "project-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun run --cwd community-plugin build",
+    "dev": "bun run --cwd community-plugin dev",
+    "test": "bun run --cwd community-plugin test",
+    "install:link": "bun run --cwd community-plugin install:link",
+    "plugin:build": "bun run --cwd community-plugin build",
+    "plugin:dev": "bun run --cwd community-plugin dev",
+    "plugin:test": "bun run --cwd community-plugin test",
+    "plugin:install:link": "bun run --cwd community-plugin install:link"
+  }
+}

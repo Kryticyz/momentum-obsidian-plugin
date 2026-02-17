@@ -1,0 +1,76 @@
+.project-insights-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.project-insights-controls button {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--interactive-normal);
+  color: var(--text-normal);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.project-insights-controls button:hover {
+  background: var(--interactive-hover);
+}
+
+.project-insights-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.project-insights-note-input {
+  width: 100%;
+}
+
+.project-insights-status-bar {
+  cursor: pointer;
+}
+
+.project-insights-timer-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.project-insights-timer-status {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--background-secondary);
+}
+
+.project-insights-timer-project {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.project-insights-timer-elapsed {
+  font-family: var(--font-monospace);
+  font-size: 1.4em;
+  margin-bottom: 4px;
+}
+
+.project-insights-timer-started {
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.project-insights-timer-note label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+}
+
+.project-insights-timer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

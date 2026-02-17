@@ -1,0 +1,9 @@
+{
+  "id": "project-insights",
+  "name": "Project Insights",
+  "version": "0.1.1",
+  "minAppVersion": "1.5.0",
+  "description": "Snapshot active projects into daily/weekly notes and track time logs.",
+  "author": "kryticyz",
+  "isDesktopOnly": false
+}

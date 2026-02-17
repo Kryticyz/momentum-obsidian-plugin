@@ -1,0 +1,53 @@
+name: Release Project Insights Plugin
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install plugin dependencies
+        run: bun install --cwd community-plugin --frozen-lockfile
+
+      - name: Validate tag matches manifest version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="$(node -p "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8')).version")"
+
+          if [ "$TAG" != "$VERSION" ]; then
+            echo "Tag ($TAG) must exactly match manifest version ($VERSION)."
+            exit 1
+          fi
+
+      - name: Build plugin release artifacts
+        run: bun run build
+
+      - name: Verify release files exist
+        run: |
+          test -f release/project-insights/main.js
+          test -f release/project-insights/manifest.json
+          test -f release/project-insights/styles.css
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: |
+            release/project-insights/main.js
+            release/project-insights/manifest.json
+            release/project-insights/styles.css
