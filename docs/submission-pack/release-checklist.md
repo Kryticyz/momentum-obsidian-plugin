@@ -1,6 +1,6 @@
-# Project Insights Community Plugin Release Checklist
+# Momentum Community Plugin Release Checklist
 
-This checklist is for releasing version `0.1.1` of `project-insights`.
+This checklist is for releasing version `0.1.1` of `momentum`.
 
 ## 1. Pre-release validation
 
@@ -22,9 +22,9 @@ bun run build
 
 Expected files:
 
-- `release/project-insights/main.js`
-- `release/project-insights/manifest.json`
-- `release/project-insights/styles.css`
+- `release/momentum/main.js`
+- `release/momentum/manifest.json`
+- `release/momentum/styles.css`
 
 ## 3. Create git tag and GitHub release
 
@@ -37,9 +37,9 @@ git push origin 0.1.1
 
 Create a GitHub release for tag `0.1.1` and upload binary assets:
 
-- `release/project-insights/main.js`
-- `release/project-insights/manifest.json`
-- `release/project-insights/styles.css`
+- `release/momentum/main.js`
+- `release/momentum/manifest.json`
+- `release/momentum/styles.css`
 
 Release title should also be `0.1.1`.
 
@@ -48,7 +48,7 @@ Release title should also be `0.1.1`.
 1. Open `https://github.com/obsidianmd/obsidian-releases/edit/master/community-plugins.json`.
 2. Append the JSON snippet from `docs/submission-pack/community-plugins-entry.json` to the end of the array.
 3. Commit and open a PR.
-4. Set PR title to `Add plugin: Project Insights`.
+4. Set PR title to `Add plugin: Momentum`.
 5. Paste `docs/submission-pack/obsidian-releases-pr.md` into the PR body.
 6. Fill in placeholders and checkboxes truthfully.
 

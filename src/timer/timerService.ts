@@ -163,7 +163,7 @@ export class TimerService {
     try {
       listener(snapshot);
     } catch (error) {
-      console.error("Project Insights: timer listener failed.", error);
+      console.error("Momentum: timer listener failed.", error);
     }
   }
 }

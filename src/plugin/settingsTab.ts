@@ -1,12 +1,12 @@
 import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
-import { DEFAULT_SETTINGS, ProjectInsightsSettings } from "./settings";
+import { DEFAULT_SETTINGS, MomentumSettings } from "./settings";
 
 interface SettingsTabHost {
-  settings: ProjectInsightsSettings;
+  settings: MomentumSettings;
   saveSettings: () => Promise<void>;
 }
 
-export class ProjectInsightsSettingTab extends PluginSettingTab {
+export class MomentumSettingTab extends PluginSettingTab {
   private readonly host: SettingsTabHost;
 
   constructor(app: App, plugin: Plugin, host: SettingsTabHost) {

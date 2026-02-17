@@ -1,4 +1,4 @@
-export interface ProjectInsightsSettings {
+export interface MomentumSettings {
   dueDateField: string;
   timezone: string;
   exportPath: string;
@@ -7,10 +7,10 @@ export interface ProjectInsightsSettings {
   dailyNoteFolder: string;
 }
 
-export const DEFAULT_SETTINGS: ProjectInsightsSettings = {
+export const DEFAULT_SETTINGS: MomentumSettings = {
   dueDateField: "end",
   timezone: "Australia/Sydney",
-  exportPath: ".obsidian/project-insights/time-entries.jsonl",
+  exportPath: ".obsidian/momentum/time-entries.jsonl",
   autoInsertOnCreate: true,
   createDelayMs: 900,
   dailyNoteFolder: ""

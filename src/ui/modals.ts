@@ -18,7 +18,7 @@ export function openPickerModal<T>(app: App, title: string, items: PickerItem<T>
       const modal = new PickerModal(app, title, items, resolve);
       modal.open();
     } catch (error) {
-      console.error("Project Insights: failed to open picker modal.", error);
+      console.error("Momentum: failed to open picker modal.", error);
       resolve(null);
     }
   });
@@ -35,7 +35,7 @@ export function openTextPromptModal(
       const modal = new TextPromptModal(app, title, placeholder, initialValue, resolve);
       modal.open();
     } catch (error) {
-      console.error("Project Insights: failed to open text prompt modal.", error);
+      console.error("Momentum: failed to open text prompt modal.", error);
       resolve(null);
     }
   });
@@ -69,7 +69,7 @@ class PickerModal<T> extends FuzzySuggestModal<PickerItem<T>> {
         el.createEl("small", { text: item.detail });
       }
     } catch (error) {
-      console.error("Project Insights: failed to render picker suggestion.", error);
+      console.error("Momentum: failed to render picker suggestion.", error);
       el.empty();
       el.createDiv({ text: match.item.label });
     }
@@ -120,10 +120,10 @@ class TextPromptModal extends Modal {
     const input = new TextComponent(contentEl);
     input.setPlaceholder(this.placeholder);
     input.setValue(this.initialValue);
-    input.inputEl.addClass("project-insights-note-input");
+    input.inputEl.addClass("momentum-note-input");
     input.inputEl.focus();
 
-    const actions = contentEl.createDiv({ cls: "project-insights-modal-actions" });
+    const actions = contentEl.createDiv({ cls: "momentum-modal-actions" });
 
     new ButtonComponent(actions)
       .setButtonText("Cancel")

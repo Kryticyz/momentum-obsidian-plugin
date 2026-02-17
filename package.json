@@ -1,12 +1,12 @@
 {
-  "name": "obsidian-project-insights",
+  "name": "obsidian-momentum",
   "version": "0.1.1",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "mkdir -p release/project-insights && cp manifest.json release/project-insights/manifest.json && cp styles.css release/project-insights/styles.css && bun build src/main.ts --outfile release/project-insights/main.js --target browser --format cjs --external obsidian --external electron --external @codemirror/state --external @codemirror/view --external @codemirror/language --external @codemirror/search --external @lezer/common --external @lezer/highlight --external @lezer/lr",
-    "dev": "mkdir -p release/project-insights && cp manifest.json release/project-insights/manifest.json && cp styles.css release/project-insights/styles.css && bun build src/main.ts --outfile release/project-insights/main.js --target browser --format cjs --external obsidian --external electron --external @codemirror/state --external @codemirror/view --external @codemirror/language --external @codemirror/search --external @lezer/common --external @lezer/highlight --external @lezer/lr --watch",
-    "install:link": "bash -lc 'if [ -z \"${OBSIDIAN_VAULT_PATH:-}\" ]; then echo \"Set OBSIDIAN_VAULT_PATH, e.g. OBSIDIAN_VAULT_PATH=\\\"$HOME/Documents/MyVault\\\" bun run install:link\"; exit 1; fi; PLUGINS_DIR=\"$OBSIDIAN_VAULT_PATH/.obsidian/plugins\"; TARGET=\"$PLUGINS_DIR/project-insights\"; mkdir -p \"$PLUGINS_DIR\"; ln -sfn \"$PWD/release/project-insights\" \"$TARGET\"; echo \"Linked $TARGET -> $PWD/release/project-insights\"'",
+    "build": "mkdir -p release/momentum && cp manifest.json release/momentum/manifest.json && cp styles.css release/momentum/styles.css && bun build src/main.ts --outfile release/momentum/main.js --target browser --format cjs --external obsidian --external electron --external @codemirror/state --external @codemirror/view --external @codemirror/language --external @codemirror/search --external @lezer/common --external @lezer/highlight --external @lezer/lr",
+    "dev": "mkdir -p release/momentum && cp manifest.json release/momentum/manifest.json && cp styles.css release/momentum/styles.css && bun build src/main.ts --outfile release/momentum/main.js --target browser --format cjs --external obsidian --external electron --external @codemirror/state --external @codemirror/view --external @codemirror/language --external @codemirror/search --external @lezer/common --external @lezer/highlight --external @lezer/lr --watch",
+    "install:link": "bash -lc 'if [ -z \"${OBSIDIAN_VAULT_PATH:-}\" ]; then echo \"Set OBSIDIAN_VAULT_PATH, e.g. OBSIDIAN_VAULT_PATH=\\\"$HOME/Documents/MyVault\\\" bun run install:link\"; exit 1; fi; PLUGINS_DIR=\"$OBSIDIAN_VAULT_PATH/.obsidian/plugins\"; TARGET=\"$PLUGINS_DIR/momentum\"; mkdir -p \"$PLUGINS_DIR\"; ln -sfn \"$PWD/release/momentum\" \"$TARGET\"; echo \"Linked $TARGET -> $PWD/release/momentum\"'",
     "test": "bun test"
   },
   "devDependencies": {

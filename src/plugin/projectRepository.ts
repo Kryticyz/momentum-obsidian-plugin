@@ -91,7 +91,7 @@ export class ProjectRepository {
         });
       } catch (error) {
         parseFailures.push(file.path);
-        console.error(`Project Insights: skipping project scan for ${file.path}.`, error);
+        console.error(`Momentum: skipping project scan for ${file.path}.`, error);
       }
     }
 

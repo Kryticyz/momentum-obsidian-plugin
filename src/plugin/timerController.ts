@@ -47,7 +47,7 @@ export class TimerController {
           const result = await this.getTimerProjects();
           if (result.parseFailures.length > 0) {
             this.notifyImpl(messages.timerScanParseFailures(result.parseFailures.length));
-            console.warn("Project Insights: timer project parse failures:", result.parseFailures);
+            console.warn("Momentum: timer project parse failures:", result.parseFailures);
           }
           return result.projects;
         },

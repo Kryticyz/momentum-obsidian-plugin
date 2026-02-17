@@ -1,4 +1,4 @@
-# Project Insights (Obsidian Plugin)
+# Momentum (Obsidian Plugin)
 
 MVP plugin for:
 - Snapshotting active projects into daily and weekly notes.
@@ -40,13 +40,13 @@ Time log entries are preserved during regeneration.
 This same format is used for timer-generated entries and manual entries.
 
 ## Commands
-- `Project Insights: Start project timer`
-- `Project Insights: Stop project timer and log entry`
-- `Project Insights: Open timer side panel`
-- `Project Insights: Debug timer project scan`
-- `Project Insights: Debug timer state`
-- `Project Insights: Regenerate project snapshot in current note`
-- `Project Insights: Export time entries to JSONL`
+- `Momentum: Start project timer`
+- `Momentum: Stop project timer and log entry`
+- `Momentum: Open timer side panel`
+- `Momentum: Debug timer project scan`
+- `Momentum: Debug timer state`
+- `Momentum: Regenerate project snapshot in current note`
+- `Momentum: Export time entries to JSONL`
 
 `## Time Logs` includes a rendered button control block in reading mode.
 The plugin also shows a clickable timer in the status bar.
@@ -55,14 +55,14 @@ The plugin also shows a clickable timer in the status bar.
 - Due date field (default: `end`)
 - Timezone (default: `Australia/Sydney`)
 - Daily note folder (default: vault root)
-- Export path (default: `.obsidian/project-insights/time-entries.jsonl`)
+- Export path (default: `.obsidian/momentum/time-entries.jsonl`)
 - Auto insert snapshots on note creation
 - Note-create hook delay (for templater timing)
 
 ## Repository Layout
 
 - Plugin source: `src/`
-- Release artifacts: `release/project-insights/`
+- Release artifacts: `release/momentum/`
 - Tests: `test/`
 - Plugin stylesheet: `styles.css`
 
@@ -74,9 +74,9 @@ bun test
 ```
 
 Build output is written to:
-- `release/project-insights/main.js`
-- `release/project-insights/manifest.json`
-- `release/project-insights/styles.css`
+- `release/momentum/main.js`
+- `release/momentum/manifest.json`
+- `release/momentum/styles.css`
 
 Optional for type tooling:
 
@@ -99,14 +99,14 @@ OBSIDIAN_VAULT_PATH="/absolute/path/to/your/vault" bun run install:link
 ```
 
 This creates/updates:
-- `<vault>/.obsidian/plugins/project-insights` -> `release/project-insights`
+- `<vault>/.obsidian/plugins/momentum` -> `release/momentum`
 
 3. Load in Obsidian:
 - Open the target vault.
 - Go to `Settings` -> `Community plugins`.
 - Disable `Restricted mode` if enabled.
 - Click `Reload plugins`.
-- Enable `Project Insights`.
+- Enable `Momentum`.
 
 ## Maintainer Dev Loop
 
@@ -118,4 +118,4 @@ bun run dev
 
 Then in Obsidian:
 - Use `Reload plugins` after changes.
-- If you update `manifest.json` or `styles.css`, run `bun run build` once to recopy those files to `release/project-insights`.
+- If you update `manifest.json` or `styles.css`, run `bun run build` once to recopy those files to `release/momentum`.

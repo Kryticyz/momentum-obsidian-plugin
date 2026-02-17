@@ -24,7 +24,7 @@ export class TimerStatusBarController {
     this.startTimer = options.startTimer;
     this.stopTimer = options.stopTimer;
 
-    this.element.addClass("project-insights-status-bar");
+    this.element.addClass("momentum-status-bar");
     this.element.addEventListener("click", this.onClick);
 
     this.unsubscribe = this.timerService.subscribe((snapshot) => {
@@ -34,7 +34,7 @@ export class TimerStatusBarController {
         this.element.setAttribute("aria-label", `Project timer (${timezone})`);
         this.element.title = timezone;
       } catch (error) {
-        console.error("Project Insights: failed to render status bar timer.", error);
+        console.error("Momentum: failed to render status bar timer.", error);
       }
     });
   }

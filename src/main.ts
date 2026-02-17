@@ -25,8 +25,8 @@ import { commandName, COMMAND_IDS } from "./plugin/commandCatalog";
 import { messages } from "./plugin/messages";
 import { buildPersistedData, loadPersistedData } from "./plugin/persistence";
 import { ProjectRepository } from "./plugin/projectRepository";
-import { DEFAULT_SETTINGS, ProjectInsightsSettings } from "./plugin/settings";
-import { ProjectInsightsSettingTab } from "./plugin/settingsTab";
+import { DEFAULT_SETTINGS, MomentumSettings } from "./plugin/settings";
+import { MomentumSettingTab } from "./plugin/settingsTab";
 import { TimerController } from "./plugin/timerController";
 import { formatElapsedClock, formatStartedAtLabel } from "./timer/timerDisplay";
 import { TimerService } from "./timer/timerService";
@@ -34,8 +34,8 @@ import { ActiveTimerState } from "./timer/timerTypes";
 import { TIMER_SIDE_PANEL_VIEW_TYPE, TimerSidePanelView } from "./ui/timerSidePanelView";
 import { TimerStatusBarController } from "./ui/timerStatusBar";
 
-export default class ProjectInsightsPlugin extends Plugin {
-  settings: ProjectInsightsSettings = DEFAULT_SETTINGS;
+export default class MomentumPlugin extends Plugin {
+  settings: MomentumSettings = DEFAULT_SETTINGS;
 
   private persistedActiveTimer: ActiveTimerState | null = null;
   private timerService: TimerService | null = null;
@@ -47,7 +47,7 @@ export default class ProjectInsightsPlugin extends Plugin {
     await this.loadPluginData();
     this.initializeServices();
 
-    this.addSettingTab(new ProjectInsightsSettingTab(this.app, this, this));
+    this.addSettingTab(new MomentumSettingTab(this.app, this, this));
     this.registerCommands();
     this.registerTimerControlsCodeBlock();
     this.registerTimerView();
@@ -191,7 +191,7 @@ export default class ProjectInsightsPlugin extends Plugin {
 
   private registerTimerControlsCodeBlock(): void {
     this.registerMarkdownCodeBlockProcessor("project-timer-controls", (_source, el) => {
-      const controls = el.createDiv({ cls: "project-insights-controls" });
+      const controls = el.createDiv({ cls: "momentum-controls" });
 
       this.addControlButton(controls, "Start timer", COMMAND_IDS.startTimer);
       this.addControlButton(controls, "Stop timer", COMMAND_IDS.stopTimer);
@@ -312,7 +312,7 @@ export default class ProjectInsightsPlugin extends Plugin {
       `parseFailures=${result.parseFailures.length}`
     ].join(" ");
 
-    console.info("Project Insights: timer project scan summary", summary);
+    console.info("Momentum: timer project scan summary", summary);
     if (result.projects.length > 0) {
       console.table(
         result.projects.map((project) => ({
@@ -324,7 +324,7 @@ export default class ProjectInsightsPlugin extends Plugin {
       );
     }
     if (result.parseFailures.length > 0) {
-      console.warn("Project Insights: timer project scan parse failures", result.parseFailures);
+      console.warn("Momentum: timer project scan parse failures", result.parseFailures);
     }
 
     new Notice(messages.timerScanSummary(summary));
@@ -334,7 +334,7 @@ export default class ProjectInsightsPlugin extends Plugin {
     const snapshot = this.requireTimerService().getSnapshot();
     if (!snapshot.activeTimer) {
       new Notice(messages.timerStateIdle);
-      console.info("Project Insights: timer state", {
+      console.info("Momentum: timer state", {
         running: false,
         elapsedMs: snapshot.elapsedMs
       });
@@ -345,7 +345,7 @@ export default class ProjectInsightsPlugin extends Plugin {
       `running project=${snapshot.activeTimer.projectName} ` +
       `elapsed=${snapshot.elapsedMs}ms startedAt=${snapshot.activeTimer.startedAt}`;
     new Notice(messages.timerStateRunning(summary));
-    console.info("Project Insights: timer state", {
+    console.info("Momentum: timer state", {
       running: true,
       project: snapshot.activeTimer.projectName,
       path: snapshot.activeTimer.projectPath,

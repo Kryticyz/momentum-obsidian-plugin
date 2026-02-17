@@ -3,8 +3,8 @@ import { formatMinutes } from "./date";
 
 export const ACTIVE_PROJECTS_HEADING = "Active Projects";
 export const TIME_LOGS_HEADING = "Time Logs";
-export const CONTROLS_BLOCK_START = "<!-- project-insights:controls:start -->";
-export const CONTROLS_BLOCK_END = "<!-- project-insights:controls:end -->";
+export const CONTROLS_BLOCK_START = "<!-- momentum:controls:start -->";
+export const CONTROLS_BLOCK_END = "<!-- momentum:controls:end -->";
 
 const TIME_LOG_TEMPLATE_COMMENT =
   "<!-- Format: - 09:10-09:45 [[Project]] (35m) \"what was done\" -->";

@@ -27,7 +27,7 @@ describe("timer start flow", () => {
 
     expect(started).toBe(true);
     expect(service.getActiveTimer()?.projectName).toBe("Project A");
-    expect(notices.at(-1)).toBe("Project Insights: timer started for Project A.");
+    expect(notices.at(-1)).toBe("Momentum: timer started for Project A.");
     service.dispose();
   });
 
@@ -49,7 +49,7 @@ describe("timer start flow", () => {
 
     expect(started).toBe(true);
     expect(service.getActiveTimer()?.projectName).toBe("Project B");
-    expect(notices.at(-1)).toBe("Project Insights: timer started for Project B.");
+    expect(notices.at(-1)).toBe("Momentum: timer started for Project B.");
     service.dispose();
   });
 
@@ -68,7 +68,7 @@ describe("timer start flow", () => {
 
     expect(started).toBe(false);
     expect(service.getActiveTimer()).toBeNull();
-    expect(notices.at(-1)).toBe("Project Insights: no project was selected.");
+    expect(notices.at(-1)).toBe("Momentum: no project was selected.");
     service.dispose();
   });
 
@@ -87,8 +87,8 @@ describe("timer start flow", () => {
 
     expect(started).toBe(false);
     expect(service.getActiveTimer()).toBeNull();
-    expect(notices).toContain("Project Insights: project name not found.");
-    expect(notices.at(-1)).toBe("Project Insights: no project was selected.");
+    expect(notices).toContain("Momentum: project name not found.");
+    expect(notices.at(-1)).toBe("Momentum: no project was selected.");
     service.dispose();
   });
 
@@ -109,7 +109,7 @@ describe("timer start flow", () => {
     expect(started).toBe(false);
     expect(service.getActiveTimer()).toBeNull();
     expect(notices.at(-1)).toBe(
-      "Project Insights: could not load active projects (metadata read failed)."
+      "Momentum: could not load active projects (metadata read failed)."
     );
     service.dispose();
   });

@@ -1,4 +1,4 @@
-name: Release Project Insights Plugin
+name: Release Momentum Plugin
 
 on:
   push:
@@ -38,9 +38,9 @@ jobs:
 
       - name: Verify release files exist
         run: |
-          test -f release/project-insights/main.js
-          test -f release/project-insights/manifest.json
-          test -f release/project-insights/styles.css
+          test -f release/momentum/main.js
+          test -f release/momentum/manifest.json
+          test -f release/momentum/styles.css
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -48,6 +48,6 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           files: |
-            release/project-insights/main.js
-            release/project-insights/manifest.json
-            release/project-insights/styles.css
+            release/momentum/main.js
+            release/momentum/manifest.json
+            release/momentum/styles.css

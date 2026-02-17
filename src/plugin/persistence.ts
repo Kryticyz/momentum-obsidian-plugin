@@ -1,11 +1,11 @@
 import { ActiveTimerState } from "../timer/timerTypes";
-import { ProjectInsightsSettings } from "./settings";
+import { MomentumSettings } from "./settings";
 
 export const CURRENT_DATA_VERSION = 2;
 
 export interface PersistedDataV2 {
   version: typeof CURRENT_DATA_VERSION;
-  settings: Partial<ProjectInsightsSettings>;
+  settings: Partial<MomentumSettings>;
   activeTimer: ActiveTimerState | null;
 }
 
@@ -33,7 +33,7 @@ export function loadPersistedData(raw: unknown): PersistenceLoadResult {
 }
 
 export function buildPersistedData(
-  settings: ProjectInsightsSettings,
+  settings: MomentumSettings,
   activeTimer: ActiveTimerState | null
 ): PersistedDataV2 {
   return {
@@ -43,13 +43,13 @@ export function buildPersistedData(
   };
 }
 
-function sanitizeSettings(raw: unknown): Partial<ProjectInsightsSettings> {
+function sanitizeSettings(raw: unknown): Partial<MomentumSettings> {
   const record = asRecord(raw);
   if (!record) {
     return {};
   }
 
-  const settings: Partial<ProjectInsightsSettings> = {};
+  const settings: Partial<MomentumSettings> = {};
 
   if (typeof record.dueDateField === "string") {
     settings.dueDateField = record.dueDateField;

@@ -11,7 +11,7 @@ import {
 import { TimerService } from "../timer/timerService";
 import { TimerSnapshot } from "../timer/timerTypes";
 
-export const TIMER_SIDE_PANEL_VIEW_TYPE = "project-insights-timer-view";
+export const TIMER_SIDE_PANEL_VIEW_TYPE = "momentum-timer-view";
 
 interface TimerSidePanelViewOptions {
   timerService: TimerService;
@@ -52,23 +52,23 @@ export class TimerSidePanelView extends ItemView {
 
   async onOpen(): Promise<void> {
     this.contentEl.empty();
-    this.contentEl.addClass("project-insights-timer-panel");
+    this.contentEl.addClass("momentum-timer-panel");
 
     this.contentEl.createEl("h3", { text: "Project Timer" });
 
-    const statusWrap = this.contentEl.createDiv({ cls: "project-insights-timer-status" });
-    this.projectEl = statusWrap.createDiv({ cls: "project-insights-timer-project" });
-    this.elapsedEl = statusWrap.createDiv({ cls: "project-insights-timer-elapsed" });
-    this.startedAtEl = statusWrap.createDiv({ cls: "project-insights-timer-started" });
+    const statusWrap = this.contentEl.createDiv({ cls: "momentum-timer-status" });
+    this.projectEl = statusWrap.createDiv({ cls: "momentum-timer-project" });
+    this.elapsedEl = statusWrap.createDiv({ cls: "momentum-timer-elapsed" });
+    this.startedAtEl = statusWrap.createDiv({ cls: "momentum-timer-started" });
 
-    const noteSection = this.contentEl.createDiv({ cls: "project-insights-timer-note" });
+    const noteSection = this.contentEl.createDiv({ cls: "momentum-timer-note" });
     noteSection.createEl("label", { text: "Work note for stop/switch" });
     this.noteInput = new TextAreaComponent(noteSection);
     this.noteInput.inputEl.rows = 3;
-    this.noteInput.inputEl.addClass("project-insights-note-input");
+    this.noteInput.inputEl.addClass("momentum-note-input");
     this.noteInput.setPlaceholder("Optional note. Leave blank to prompt on stop.");
 
-    const controls = this.contentEl.createDiv({ cls: "project-insights-timer-actions" });
+    const controls = this.contentEl.createDiv({ cls: "momentum-timer-actions" });
 
     this.startButton = new ButtonComponent(controls)
       .setButtonText("Start Timer")
