@@ -61,10 +61,10 @@ The plugin also shows a clickable timer in the status bar.
 
 ## Repository Layout
 
-- Plugin source: `community-plugin/`
+- Plugin source: `src/`
 - Release artifacts: `release/project-insights/`
-
-For workspace-level layout and non-plugin components, see `WORKSPACE.md`.
+- Tests: `test/`
+- Plugin stylesheet: `styles.css`
 
 ## Development
 
@@ -81,7 +81,7 @@ Build output is written to:
 Optional for type tooling:
 
 ```bash
-bun install --cwd community-plugin
+bun install
 ```
 
 ## Maintainer Local Install (Obsidian Desktop)
@@ -118,4 +118,4 @@ bun run dev
 
 Then in Obsidian:
 - Use `Reload plugins` after changes.
-- If you update `manifest.json` or `community-plugin/styles.css`, run `bun run build` once to recopy those files to `release/project-insights`.
+- If you update `manifest.json` or `styles.css`, run `bun run build` once to recopy those files to `release/project-insights`.

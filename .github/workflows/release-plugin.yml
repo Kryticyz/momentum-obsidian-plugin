@@ -21,7 +21,7 @@ jobs:
           bun-version: latest
 
       - name: Install plugin dependencies
-        run: bun install --cwd community-plugin --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Validate tag matches manifest version
         run: |
