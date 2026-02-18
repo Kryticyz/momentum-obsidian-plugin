@@ -36,7 +36,11 @@ export const messages = {
     `Momentum: logged ${minutes}m for ${projectName} in ${dateIso}.`,
   exportPathIsFolder: "Momentum: export path points to a folder.",
   exportedEntries: (count: number, exportPath: string) =>
-    `Momentum: exported ${count} entries to ${exportPath}.`
+    `Momentum: exported ${count} entries to ${exportPath}.`,
+  exportedEntriesAndRefreshedBackend: (count: number, exportPath: string, refreshUrl: string) =>
+    `Momentum: exported ${count} entries to ${exportPath} and refreshed backend at ${refreshUrl}.`,
+  exportedEntriesBackendRefreshFailed: (count: number, exportPath: string, detail: string) =>
+    `Momentum: exported ${count} entries to ${exportPath}, but backend refresh failed (${detail}).`
 };
 
 export function toErrorMessage(error: unknown): string {

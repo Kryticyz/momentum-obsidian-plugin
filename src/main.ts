@@ -22,7 +22,8 @@ import {
 } from "./core/timeLogs";
 import { formatDateInTimezone } from "./core/timezone";
 import { commandName, COMMAND_IDS } from "./plugin/commandCatalog";
-import { messages } from "./plugin/messages";
+import { messages, toErrorMessage } from "./plugin/messages";
+import { postBackendRefresh } from "./plugin/backendSync";
 import { buildPersistedData, loadPersistedData } from "./plugin/persistence";
 import { ProjectRepository } from "./plugin/projectRepository";
 import { DEFAULT_SETTINGS, MomentumSettings } from "./plugin/settings";
@@ -428,6 +429,23 @@ export default class MomentumPlugin extends Plugin {
       return;
     } else {
       await this.app.vault.create(exportPath, jsonl);
+    }
+
+    if (this.settings.exportTarget === "backend-refresh") {
+      try {
+        const refreshUrl = await postBackendRefresh(this.settings.exportBackendUrl);
+        new Notice(messages.exportedEntriesAndRefreshedBackend(entries.length, exportPath, refreshUrl));
+      } catch (error) {
+        console.error("Momentum: backend refresh failed.", error);
+        new Notice(
+          messages.exportedEntriesBackendRefreshFailed(
+            entries.length,
+            exportPath,
+            toErrorMessage(error)
+          )
+        );
+      }
+      return;
     }
 
     new Notice(messages.exportedEntries(entries.length, exportPath));

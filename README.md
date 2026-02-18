@@ -61,6 +61,8 @@ The plugin also shows a clickable timer in the status bar.
 - Timezone (default: `Australia/Sydney`)
 - Daily note folder (default: vault root)
 - Export path (default: `.obsidian/momentum/time-entries.jsonl`)
+- Export target (`JSONL file` or `Backend refresh URL`)
+- Backend refresh URL (default: `http://localhost:8080`, uses `POST /refresh`)
 - Auto insert snapshots on note creation
 - Note-create hook delay (for templater timing)
 

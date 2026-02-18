@@ -1,5 +1,5 @@
 import { ActiveTimerState } from "../timer/timerTypes";
-import { MomentumSettings } from "./settings";
+import { ExportTarget, MomentumSettings } from "./settings";
 
 export const CURRENT_DATA_VERSION = 2;
 
@@ -60,6 +60,12 @@ function sanitizeSettings(raw: unknown): Partial<MomentumSettings> {
   if (typeof record.exportPath === "string") {
     settings.exportPath = record.exportPath;
   }
+  if (isExportTarget(record.exportTarget)) {
+    settings.exportTarget = record.exportTarget;
+  }
+  if (typeof record.exportBackendUrl === "string") {
+    settings.exportBackendUrl = record.exportBackendUrl;
+  }
   if (typeof record.autoInsertOnCreate === "boolean") {
     settings.autoInsertOnCreate = record.autoInsertOnCreate;
   }
@@ -71,6 +77,10 @@ function sanitizeSettings(raw: unknown): Partial<MomentumSettings> {
   }
 
   return settings;
+}
+
+function isExportTarget(value: unknown): value is ExportTarget {
+  return value === "jsonl" || value === "backend-refresh";
 }
 
 function sanitizeActiveTimer(raw: unknown): ActiveTimerState | null {

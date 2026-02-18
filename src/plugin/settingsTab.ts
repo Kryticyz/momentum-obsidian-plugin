@@ -65,6 +65,35 @@ export class MomentumSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Export target")
+      .setDesc("Export JSONL only, or export JSONL and trigger backend refresh.")
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("jsonl", "JSONL file")
+          .addOption("backend-refresh", "Backend refresh URL")
+          .setValue(this.host.settings.exportTarget)
+          .onChange(async (value) => {
+            this.host.settings.exportTarget = value === "backend-refresh"
+              ? "backend-refresh"
+              : "jsonl";
+            await this.host.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Backend refresh URL")
+      .setDesc("Base URL for backend refresh endpoint. Uses POST /refresh.")
+      .addText((text) =>
+        text
+          .setPlaceholder(DEFAULT_SETTINGS.exportBackendUrl)
+          .setValue(this.host.settings.exportBackendUrl)
+          .onChange(async (value) => {
+            this.host.settings.exportBackendUrl = value.trim() || DEFAULT_SETTINGS.exportBackendUrl;
+            await this.host.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
       .setName("Auto insert snapshots on note creation")
       .setDesc("Automatically insert or refresh sections in new daily/weekly notes.")
       .addToggle((toggle) =>
