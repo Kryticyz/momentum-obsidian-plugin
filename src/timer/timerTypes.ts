@@ -13,6 +13,7 @@ export interface TimerSnapshot {
 export interface TimerStartInput {
   projectPath: string;
   projectName: string;
+  startedAtMs?: number;
 }
 
 export type TimerListener = (snapshot: TimerSnapshot) => void;

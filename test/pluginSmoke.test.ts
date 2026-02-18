@@ -12,6 +12,8 @@ describe("plugin smoke checks", () => {
     expect(ids.length).toBe(uniqueIds.size);
     expect(ids).toContain(COMMAND_IDS.regenerateSnapshot);
     expect(ids).toContain(COMMAND_IDS.startTimer);
+    expect(ids).toContain(COMMAND_IDS.startTimerInPast);
+    expect(ids).toContain(COMMAND_IDS.adjustTimerStart);
     expect(ids).toContain(COMMAND_IDS.stopTimer);
     expect(ids).toContain(COMMAND_IDS.openTimerPanel);
     expect(ids).toContain(COMMAND_IDS.exportTimeEntries);
@@ -45,7 +47,9 @@ describe("plugin smoke checks", () => {
       timerService: service,
       timezone: "Australia/Sydney",
       noteOverride: "Smoke test",
-      appendLogEntry: async (_dateIso, line) => appended.push(line),
+      appendLogEntry: async (_dateIso, line) => {
+        appended.push(line);
+      },
       openTextPrompt: async () => null,
       notify: (message) => notices.push(message)
     });

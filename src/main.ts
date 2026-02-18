@@ -149,6 +149,22 @@ export default class MomentumPlugin extends Plugin {
     });
 
     this.addCommand({
+      id: COMMAND_IDS.startTimerInPast,
+      name: commandName(COMMAND_IDS.startTimerInPast),
+      callback: () => {
+        void this.requireTimerController().startInPast();
+      }
+    });
+
+    this.addCommand({
+      id: COMMAND_IDS.adjustTimerStart,
+      name: commandName(COMMAND_IDS.adjustTimerStart),
+      callback: () => {
+        void this.requireTimerController().adjustStart();
+      }
+    });
+
+    this.addCommand({
       id: COMMAND_IDS.stopTimer,
       name: commandName(COMMAND_IDS.stopTimer),
       callback: () => {
@@ -194,6 +210,8 @@ export default class MomentumPlugin extends Plugin {
       const controls = el.createDiv({ cls: "momentum-controls" });
 
       this.addControlButton(controls, "Start timer", COMMAND_IDS.startTimer);
+      this.addControlButton(controls, "Start in past", COMMAND_IDS.startTimerInPast);
+      this.addControlButton(controls, "Adjust start", COMMAND_IDS.adjustTimerStart);
       this.addControlButton(controls, "Stop timer", COMMAND_IDS.stopTimer);
       this.addControlButton(controls, "Timer panel", COMMAND_IDS.openTimerPanel);
       this.addControlButton(controls, "Regenerate", COMMAND_IDS.regenerateSnapshot);
@@ -221,6 +239,8 @@ export default class MomentumPlugin extends Plugin {
         timerService: this.requireTimerService(),
         getTimezone: () => this.settings.timezone,
         startTimer: () => this.requireTimerController().start(),
+        startTimerInPast: () => this.requireTimerController().startInPast(),
+        adjustTimerStart: () => this.requireTimerController().adjustStart(),
         stopTimer: (noteOverride?: string) => this.requireTimerController().stop(noteOverride),
         switchTimer: (noteOverride?: string) => this.requireTimerController().switch(noteOverride),
         openTodayDailyNote: () => this.openTodayDailyNote()

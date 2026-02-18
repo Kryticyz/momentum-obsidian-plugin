@@ -1,6 +1,8 @@
 export const COMMAND_IDS = {
   regenerateSnapshot: "regenerate-note-snapshot",
   startTimer: "start-timer",
+  startTimerInPast: "start-timer-in-past",
+  adjustTimerStart: "adjust-timer-start",
   stopTimer: "stop-timer",
   openTimerPanel: "open-timer-panel",
   debugTimerProjects: "debug-timer-project-scan",
@@ -16,6 +18,8 @@ export interface CommandCatalogEntry {
 export const COMMAND_CATALOG: CommandCatalogEntry[] = [
   { id: COMMAND_IDS.regenerateSnapshot, name: "Regenerate project snapshot in current note" },
   { id: COMMAND_IDS.startTimer, name: "Start project timer" },
+  { id: COMMAND_IDS.startTimerInPast, name: "Start project timer in the past" },
+  { id: COMMAND_IDS.adjustTimerStart, name: "Adjust active timer start time" },
   { id: COMMAND_IDS.stopTimer, name: "Stop project timer and log entry" },
   { id: COMMAND_IDS.openTimerPanel, name: "Open timer side panel" },
   { id: COMMAND_IDS.debugTimerProjects, name: "Debug timer project scan" },

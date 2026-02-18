@@ -1,7 +1,12 @@
 import { App } from "obsidian";
 import { messages, toErrorMessage } from "./messages";
 import { ProjectScanResult } from "./projectRepository";
-import { runStartTimerFlow, runStopTimerFlow } from "../timer/timerFlows";
+import {
+  runAdjustTimerStartFlow,
+  runStartTimerFlow,
+  runStartTimerInPastFlow,
+  runStopTimerFlow
+} from "../timer/timerFlows";
 import { TimerService } from "../timer/timerService";
 
 interface TimerControllerOptions {
@@ -22,6 +27,7 @@ export class TimerController {
   private readonly notifyImpl: (message: string) => void;
   private startInProgress = false;
   private stopInProgress = false;
+  private adjustInProgress = false;
 
   constructor(options: TimerControllerOptions) {
     this.app = options.app;
@@ -33,35 +39,39 @@ export class TimerController {
   }
 
   async start(): Promise<boolean> {
-    if (this.startInProgress) {
-      this.notifyImpl(messages.timerStartInProgress);
-      return false;
-    }
-
-    this.startInProgress = true;
-    try {
-      return await runStartTimerFlow({
-        app: this.app,
-        timerService: this.timerService,
-        getActiveProjects: async () => {
-          const result = await this.getTimerProjects();
-          if (result.parseFailures.length > 0) {
-            this.notifyImpl(messages.timerScanParseFailures(result.parseFailures.length));
-            console.warn("Momentum: timer project parse failures:", result.parseFailures);
-          }
-          return result.projects;
-        },
-        ui: {
-          notify: (message) => this.notifyImpl(message)
+    return this.runStartFlow(() => runStartTimerFlow({
+      app: this.app,
+      timerService: this.timerService,
+      getActiveProjects: async () => {
+        const result = await this.getTimerProjects();
+        if (result.parseFailures.length > 0) {
+          this.notifyImpl(messages.timerScanParseFailures(result.parseFailures.length));
+          console.warn("Momentum: timer project parse failures:", result.parseFailures);
         }
-      });
-    } catch (error) {
-      console.error(error);
-      this.notifyImpl(messages.timerStartFailed(toErrorMessage(error)));
-      return false;
-    } finally {
-      this.startInProgress = false;
-    }
+        return result.projects;
+      },
+      ui: {
+        notify: (message) => this.notifyImpl(message)
+      }
+    }));
+  }
+
+  async startInPast(): Promise<boolean> {
+    return this.runStartFlow(() => runStartTimerInPastFlow({
+      app: this.app,
+      timerService: this.timerService,
+      getActiveProjects: async () => {
+        const result = await this.getTimerProjects();
+        if (result.parseFailures.length > 0) {
+          this.notifyImpl(messages.timerScanParseFailures(result.parseFailures.length));
+          console.warn("Momentum: timer project parse failures:", result.parseFailures);
+        }
+        return result.projects;
+      },
+      ui: {
+        notify: (message) => this.notifyImpl(message)
+      }
+    }));
   }
 
   async stop(noteOverride?: string): Promise<boolean> {
@@ -102,5 +112,47 @@ export class TimerController {
     }
 
     return this.start();
+  }
+
+  async adjustStart(): Promise<boolean> {
+    if (this.adjustInProgress) {
+      this.notifyImpl(messages.timerAdjustInProgress);
+      return false;
+    }
+
+    this.adjustInProgress = true;
+    try {
+      return await runAdjustTimerStartFlow({
+        app: this.app,
+        timerService: this.timerService,
+        ui: {
+          notify: (message) => this.notifyImpl(message)
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      this.notifyImpl(messages.timerAdjustFailed(toErrorMessage(error)));
+      return false;
+    } finally {
+      this.adjustInProgress = false;
+    }
+  }
+
+  private async runStartFlow(runFlow: () => Promise<boolean>): Promise<boolean> {
+    if (this.startInProgress) {
+      this.notifyImpl(messages.timerStartInProgress);
+      return false;
+    }
+
+    this.startInProgress = true;
+    try {
+      return await runFlow();
+    } catch (error) {
+      console.error(error);
+      this.notifyImpl(messages.timerStartFailed(toErrorMessage(error)));
+      return false;
+    } finally {
+      this.startInProgress = false;
+    }
   }
 }

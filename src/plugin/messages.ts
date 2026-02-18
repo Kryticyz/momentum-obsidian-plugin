@@ -5,8 +5,10 @@ export const messages = {
     `Momentum: regenerated ${noteLabel} snapshot (${count} active projects).`,
   timerStartInProgress: "Momentum: start timer is already in progress.",
   timerStopInProgress: "Momentum: stop timer is already in progress.",
+  timerAdjustInProgress: "Momentum: adjust timer is already in progress.",
   timerStartFailed: (detail: string) => `Momentum: failed to start timer (${detail}).`,
   timerStopFailed: (detail: string) => `Momentum: failed to stop timer (${detail}).`,
+  timerAdjustFailed: (detail: string) => `Momentum: failed to adjust timer (${detail}).`,
   timerPanelOpenFailed: "Momentum: unable to open timer side panel.",
   timerScanParseFailures: (count: number) =>
     `Momentum: skipped ${count} file(s) due to frontmatter parse issues.`,
@@ -22,8 +24,13 @@ export const messages = {
     `Momentum: project picker could not open (${detail}).`,
   timerNoSelection: "Momentum: no project was selected.",
   timerProjectNameNotFound: "Momentum: project name not found.",
+  timerBackdatedStartCancelled: "Momentum: backdated timer start cancelled.",
+  timerBackdatedStartInvalid:
+    "Momentum: enter minutes ago or a local time (45, 90m, 1h30m, 09:40, 9:40am).",
   timerPersistFailed: (detail: string) => `Momentum: could not persist timer state (${detail}).`,
   timerStarted: (projectName: string) => `Momentum: timer started for ${projectName}.`,
+  timerAdjustedStart: (projectName: string, summary: string) =>
+    `Momentum: adjusted timer start for ${projectName}. ${summary}`,
   timerNoRunning: "Momentum: no timer is currently running.",
   timerLogged: (minutes: number, projectName: string, dateIso: string) =>
     `Momentum: logged ${minutes}m for ${projectName} in ${dateIso}.`,

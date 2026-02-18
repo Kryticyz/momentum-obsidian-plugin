@@ -17,6 +17,8 @@ interface TimerSidePanelViewOptions {
   timerService: TimerService;
   getTimezone: () => string;
   startTimer: () => Promise<boolean>;
+  startTimerInPast: () => Promise<boolean>;
+  adjustTimerStart: () => Promise<boolean>;
   stopTimer: (noteOverride?: string) => Promise<boolean>;
   switchTimer: (noteOverride?: string) => Promise<boolean>;
   openTodayDailyNote: () => Promise<void>;
@@ -30,6 +32,8 @@ export class TimerSidePanelView extends ItemView {
   private startedAtEl: HTMLElement | null = null;
   private noteInput: TextAreaComponent | null = null;
   private startButton: ButtonComponent | null = null;
+  private startInPastButton: ButtonComponent | null = null;
+  private adjustStartButton: ButtonComponent | null = null;
   private stopButton: ButtonComponent | null = null;
   private switchButton: ButtonComponent | null = null;
 
@@ -76,6 +80,18 @@ export class TimerSidePanelView extends ItemView {
         void this.options.startTimer();
       });
 
+    this.startInPastButton = new ButtonComponent(controls)
+      .setButtonText("Start in Past")
+      .onClick(() => {
+        void this.options.startTimerInPast();
+      });
+
+    this.adjustStartButton = new ButtonComponent(controls)
+      .setButtonText("Adjust Start")
+      .onClick(() => {
+        void this.options.adjustTimerStart();
+      });
+
     this.stopButton = new ButtonComponent(controls)
       .setButtonText("Stop & Log")
       .setCta()
@@ -115,6 +131,8 @@ export class TimerSidePanelView extends ItemView {
       this.elapsedEl.setText(formatElapsedClock(0));
       this.startedAtEl.setText("Started: -");
       this.startButton?.setDisabled(false);
+      this.startInPastButton?.setDisabled(false);
+      this.adjustStartButton?.setDisabled(true);
       this.stopButton?.setDisabled(true);
       this.switchButton?.setDisabled(false);
       return;
@@ -126,6 +144,8 @@ export class TimerSidePanelView extends ItemView {
       `Started: ${formatStartedAtLabel(snapshot.activeTimer.startedAt, this.options.getTimezone())}`
     );
     this.startButton?.setDisabled(true);
+    this.startInPastButton?.setDisabled(true);
+    this.adjustStartButton?.setDisabled(false);
     this.stopButton?.setDisabled(false);
     this.switchButton?.setDisabled(false);
   }

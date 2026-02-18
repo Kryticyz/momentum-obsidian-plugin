@@ -114,3 +114,51 @@ describe("timer start flow", () => {
     service.dispose();
   });
 });
+
+describe("backdated timer start flow", () => {
+  test("starts timer in the past when custom start timestamp is provided", async () => {
+    let now = 200 * 60_000;
+    const notices: string[] = [];
+    const service = new TimerService({
+      initialTimer: null,
+      now: () => now,
+      tickMs: 60_000,
+      saveActiveTimer: async () => {}
+    });
+    const projects: ProjectRecord[] = [{ path: "Project A.md", name: "Project A" }];
+
+    const started = await runStartTimerFlowCore({
+      timerService: service,
+      getActiveProjects: async () => projects,
+      notify: (message) => notices.push(message),
+      openPicker: async (_title, items) => items[0]?.value ?? null,
+      openTextPrompt: async () => null,
+      resolveStartedAtMs: async () => now - (90 * 60_000)
+    });
+
+    expect(started).toBe(true);
+    expect(service.getActiveTimer()?.startedAt).toBe(now - (90 * 60_000));
+    expect(notices.at(-1)).toBe("Momentum: timer started for Project A.");
+    service.dispose();
+  });
+
+  test("returns false when custom start timestamp resolver cancels", async () => {
+    const notices: string[] = [];
+    const service = createService();
+    const projects: ProjectRecord[] = [{ path: "Project A.md", name: "Project A" }];
+
+    const started = await runStartTimerFlowCore({
+      timerService: service,
+      getActiveProjects: async () => projects,
+      notify: (message) => notices.push(message),
+      openPicker: async (_title, items) => items[0]?.value ?? null,
+      openTextPrompt: async () => null,
+      resolveStartedAtMs: async () => null
+    });
+
+    expect(started).toBe(false);
+    expect(service.getActiveTimer()).toBeNull();
+    expect(notices).toHaveLength(0);
+    service.dispose();
+  });
+});

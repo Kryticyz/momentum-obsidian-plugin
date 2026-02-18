@@ -41,6 +41,24 @@ export function openTextPromptModal(
   });
 }
 
+export function openConfirmModal(
+  app: App,
+  title: string,
+  message: string,
+  confirmText = "Confirm",
+  cancelText = "Cancel"
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    try {
+      const modal = new ConfirmModal(app, title, message, confirmText, cancelText, resolve);
+      modal.open();
+    } catch (error) {
+      console.error("Momentum: failed to open confirm modal.", error);
+      resolve(false);
+    }
+  });
+}
+
 class PickerModal<T> extends FuzzySuggestModal<PickerItem<T>> {
   private readonly items: PickerItem<T>[];
   private readonly resolveOnce: (value: T | null) => boolean;
@@ -157,6 +175,65 @@ class TextPromptModal extends Modal {
   onClose(): void {
     if (!this.resolved) {
       this.onResolve(null);
+    }
+
+    this.contentEl.empty();
+  }
+}
+
+class ConfirmModal extends Modal {
+  private readonly title: string;
+  private readonly message: string;
+  private readonly confirmText: string;
+  private readonly cancelText: string;
+  private readonly onResolve: (confirmed: boolean) => void;
+  private resolved = false;
+
+  constructor(
+    app: App,
+    title: string,
+    message: string,
+    confirmText: string,
+    cancelText: string,
+    onResolve: (confirmed: boolean) => void
+  ) {
+    super(app);
+    this.title = title;
+    this.message = message;
+    this.confirmText = confirmText;
+    this.cancelText = cancelText;
+    this.onResolve = onResolve;
+  }
+
+  onOpen(): void {
+    const { contentEl } = this;
+    contentEl.empty();
+
+    contentEl.createEl("h3", { text: this.title });
+    contentEl.createEl("p", { text: this.message });
+
+    const actions = contentEl.createDiv({ cls: "momentum-modal-actions" });
+    new ButtonComponent(actions)
+      .setButtonText(this.cancelText)
+      .onClick(() => {
+        this.resolved = true;
+        this.onResolve(false);
+        this.close();
+      });
+
+    new ButtonComponent(actions)
+      .setButtonText(this.confirmText)
+      .setCta()
+      .onClick(() => {
+        this.resolved = true;
+        this.onResolve(true);
+        this.close();
+      });
+  }
+
+  onClose(): void {
+    if (!this.resolved) {
+      this.onResolve(false);
     }
 
     this.contentEl.empty();

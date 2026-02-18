@@ -12,6 +12,7 @@ export interface StartTimerFlowCoreInput {
     placeholder: string,
     initialValue?: string
   ) => Promise<string | null>;
+  resolveStartedAtMs?: (project: ProjectRecord) => Promise<number | null>;
   notify: (message: string) => void;
 }
 
@@ -65,11 +66,20 @@ export async function runStartTimerFlowCore(input: StartTimerFlowCoreInput): Pro
     }
   }
 
+  let startedAtMs: number | undefined;
+  if (input.resolveStartedAtMs) {
+    startedAtMs = await input.resolveStartedAtMs(selected) ?? undefined;
+    if (startedAtMs === undefined) {
+      return false;
+    }
+  }
+
   let started = false;
   try {
     started = await input.timerService.start({
       projectPath: selected.path,
-      projectName: selected.name
+      projectName: selected.name,
+      startedAtMs
     });
   } catch (error) {
     console.error(error);

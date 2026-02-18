@@ -42,6 +42,29 @@ describe("timer service", () => {
     service.dispose();
   });
 
+  test("starts with provided past timestamp", async () => {
+    let now = 200_000;
+    const service = new TimerService({
+      initialTimer: null,
+      now: () => now,
+      tickMs: 60_000,
+      saveActiveTimer: async () => {}
+    });
+
+    const started = await service.start({
+      projectPath: "Projects/Alpha.md",
+      projectName: "Alpha",
+      startedAtMs: now - (45 * 60_000)
+    });
+
+    expect(started).toBe(true);
+    expect(service.getActiveTimer()?.startedAt).toBe(now - (45 * 60_000));
+    now += 60_000;
+    expect(service.getStopDetails()?.durationMinutes).toBe(46);
+
+    service.dispose();
+  });
+
   test("returns false when starting while already running", async () => {
     const service = new TimerService({
       initialTimer: null,
@@ -65,6 +88,46 @@ describe("timer service", () => {
     service.dispose();
   });
 
+  test("adjusts active timer start and persists", async () => {
+    let now = 500_000;
+    const persisted: Array<ActiveTimerState | null> = [];
+    const service = new TimerService({
+      initialTimer: null,
+      now: () => now,
+      tickMs: 60_000,
+      saveActiveTimer: async (activeTimer) => {
+        persisted.push(activeTimer ? { ...activeTimer } : null);
+      }
+    });
+
+    await service.start({
+      projectPath: "Projects/Alpha.md",
+      projectName: "Alpha"
+    });
+
+    const adjusted = await service.adjustStart(now - (90 * 60_000));
+    expect(adjusted).toBe(true);
+    expect(service.getActiveTimer()?.startedAt).toBe(now - (90 * 60_000));
+    expect(persisted).toHaveLength(2);
+    expect(persisted[1]?.startedAt).toBe(now - (90 * 60_000));
+
+    service.dispose();
+  });
+
+  test("returns false when adjusting start with no running timer", async () => {
+    const service = new TimerService({
+      initialTimer: null,
+      tickMs: 60_000,
+      saveActiveTimer: async () => {}
+    });
+
+    const adjusted = await service.adjustStart(Date.now() - 60_000);
+    expect(adjusted).toBe(false);
+    expect(service.getActiveTimer()).toBeNull();
+
+    service.dispose();
+  });
+
   test("rolls back state when persistence fails on start", async () => {
     const service = new TimerService({
       initialTimer: null,
@@ -83,6 +146,29 @@ describe("timer service", () => {
 
     expect(service.isRunning()).toBe(false);
     expect(service.getActiveTimer()).toBeNull();
+    service.dispose();
+  });
+
+  test("restores previous timer start when adjust persistence fails", async () => {
+    let now = 700_000;
+    const service = new TimerService({
+      initialTimer: null,
+      now: () => now,
+      tickMs: 60_000,
+      saveActiveTimer: async (activeTimer) => {
+        if (activeTimer && activeTimer.startedAt !== now) {
+          throw new Error("persist failed");
+        }
+      }
+    });
+
+    await service.start({
+      projectPath: "Projects/Alpha.md",
+      projectName: "Alpha"
+    });
+
+    await expect(service.adjustStart(now - (45 * 60_000))).rejects.toThrow("persist failed");
+    expect(service.getActiveTimer()?.startedAt).toBe(now);
     service.dispose();
   });
 

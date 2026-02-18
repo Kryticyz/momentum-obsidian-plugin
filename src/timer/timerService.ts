@@ -69,10 +69,15 @@ export class TimerService {
       return false;
     }
 
+    const now = this.now();
+    const startedAt = typeof input.startedAtMs === "number" && Number.isFinite(input.startedAtMs)
+      ? Math.min(now, input.startedAtMs)
+      : now;
+
     const next: ActiveTimerState = {
       projectPath: input.projectPath,
       projectName: input.projectName,
-      startedAt: this.now()
+      startedAt
     };
 
     this.activeTimer = next;
@@ -108,6 +113,35 @@ export class TimerService {
       elapsedMs,
       durationMinutes
     };
+  }
+
+  async adjustStart(startedAtMs: number): Promise<boolean> {
+    const previous = this.activeTimer;
+    if (!previous) {
+      return false;
+    }
+
+    const now = this.now();
+    const next: ActiveTimerState = {
+      ...previous,
+      startedAt: Number.isFinite(startedAtMs)
+        ? Math.min(now, startedAtMs)
+        : now
+    };
+
+    this.activeTimer = next;
+    this.syncTicker();
+    this.notify();
+
+    try {
+      await this.saveActiveTimer(next);
+      return true;
+    } catch (error) {
+      this.activeTimer = previous;
+      this.syncTicker();
+      this.notify();
+      throw error;
+    }
   }
 
   async clear(): Promise<ActiveTimerState | null> {
