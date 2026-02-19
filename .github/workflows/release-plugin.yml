@@ -23,6 +23,9 @@ jobs:
       - name: Install plugin dependencies
         run: bun install --frozen-lockfile
 
+      - name: Lint (Obsidian plugin rules)
+        run: bun run lint:obsidian
+
       - name: Validate tag matches manifest version
         run: |
           TAG="${GITHUB_REF_NAME}"

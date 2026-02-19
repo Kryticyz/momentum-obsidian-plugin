@@ -23,7 +23,10 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Lint
+      - name: Lint (Obsidian plugin rules)
+        run: bun run lint:obsidian
+
+      - name: Lint (full repo)
         run: bun run lint
 
       - name: Test
