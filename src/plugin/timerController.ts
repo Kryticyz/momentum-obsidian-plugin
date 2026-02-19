@@ -18,6 +18,9 @@ interface TimerControllerOptions {
   notify: (message: string) => void;
 }
 
+/**
+ * Coordinates timer UI flows, persistence, and user notifications.
+ */
 export class TimerController {
   private readonly app: App;
   private readonly timerService: TimerService;
@@ -29,6 +32,9 @@ export class TimerController {
   private stopInProgress = false;
   private adjustInProgress = false;
 
+  /**
+   * Creates a timer controller with app services and UI integration callbacks.
+   */
   constructor(options: TimerControllerOptions) {
     this.app = options.app;
     this.timerService = options.timerService;
@@ -38,6 +44,9 @@ export class TimerController {
     this.notifyImpl = options.notify;
   }
 
+  /**
+   * Starts a timer for a selected active project.
+   */
   async start(): Promise<boolean> {
     return this.runStartFlow(() => runStartTimerFlow({
       app: this.app,
@@ -56,6 +65,9 @@ export class TimerController {
     }));
   }
 
+  /**
+   * Starts a timer with a user-supplied backdated start time.
+   */
   async startInPast(): Promise<boolean> {
     return this.runStartFlow(() => runStartTimerInPastFlow({
       app: this.app,
@@ -74,6 +86,9 @@ export class TimerController {
     }));
   }
 
+  /**
+   * Stops the active timer and appends its log entry to the matching daily note.
+   */
   async stop(noteOverride?: string): Promise<boolean> {
     if (this.stopInProgress) {
       this.notifyImpl(messages.timerStopInProgress);
@@ -95,7 +110,7 @@ export class TimerController {
         }
       });
     } catch (error) {
-      console.error(error);
+      console.error("Momentum: stop timer flow failed.", error);
       this.notifyImpl(messages.timerStopFailed(toErrorMessage(error)));
       return false;
     } finally {
@@ -103,6 +118,9 @@ export class TimerController {
     }
   }
 
+  /**
+   * Stops the current timer (if any) and starts a new one.
+   */
   async switch(noteOverride?: string): Promise<boolean> {
     if (this.timerService.isRunning()) {
       const stopped = await this.stop(noteOverride);
@@ -114,6 +132,9 @@ export class TimerController {
     return this.start();
   }
 
+  /**
+   * Adjusts the active timer start timestamp.
+   */
   async adjustStart(): Promise<boolean> {
     if (this.adjustInProgress) {
       this.notifyImpl(messages.timerAdjustInProgress);
@@ -130,7 +151,7 @@ export class TimerController {
         }
       });
     } catch (error) {
-      console.error(error);
+      console.error("Momentum: adjust timer start flow failed.", error);
       this.notifyImpl(messages.timerAdjustFailed(toErrorMessage(error)));
       return false;
     } finally {
@@ -138,6 +159,9 @@ export class TimerController {
     }
   }
 
+  /**
+   * Wraps start flows with re-entrancy guards and user-facing error handling.
+   */
   private async runStartFlow(runFlow: () => Promise<boolean>): Promise<boolean> {
     if (this.startInProgress) {
       this.notifyImpl(messages.timerStartInProgress);
@@ -148,7 +172,7 @@ export class TimerController {
     try {
       return await runFlow();
     } catch (error) {
-      console.error(error);
+      console.error("Momentum: start timer flow failed.", error);
       this.notifyImpl(messages.timerStartFailed(toErrorMessage(error)));
       return false;
     } finally {

@@ -1,28 +1,42 @@
 import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
-import { DEFAULT_SETTINGS, MomentumSettings } from "./settings";
+import {
+  defaultExportPath,
+  DEFAULT_SETTINGS,
+  MomentumSettings
+} from "./settings";
 
 interface SettingsTabHost {
   settings: MomentumSettings;
   saveSettings: () => Promise<void>;
 }
 
+/**
+ * Renders and persists plugin settings inside Obsidian's settings UI.
+ */
 export class MomentumSettingTab extends PluginSettingTab {
   private readonly host: SettingsTabHost;
 
+  /**
+   * Creates a settings tab bound to the plugin host save/settings methods.
+   */
   constructor(app: App, plugin: Plugin, host: SettingsTabHost) {
     super(app, plugin);
     this.host = host;
   }
 
+  /**
+   * Rebuilds the settings tab UI from current in-memory settings.
+   */
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
+    const defaultExportPathValue = defaultExportPath(this.app.vault.configDir);
 
     new Setting(containerEl)
       .setName("Project due date field")
       .setDesc("Frontmatter property used for due date sorting.")
       .addText((text) =>
-        text.setPlaceholder("end").setValue(this.host.settings.dueDateField).onChange(async (value) => {
+        text.setPlaceholder("End").setValue(this.host.settings.dueDateField).onChange(async (value) => {
           this.host.settings.dueDateField = value.trim() || DEFAULT_SETTINGS.dueDateField;
           await this.host.saveSettings();
         })
@@ -33,7 +47,7 @@ export class MomentumSettingTab extends PluginSettingTab {
       .setDesc("Timezone used for timer date/time formatting.")
       .addText((text) =>
         text
-          .setPlaceholder("Australia/Sydney")
+          .setPlaceholder("Region/city")
           .setValue(this.host.settings.timezone)
           .onChange(async (value) => {
             this.host.settings.timezone = value.trim() || DEFAULT_SETTINGS.timezone;
@@ -53,23 +67,23 @@ export class MomentumSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Export path")
-      .setDesc("Path to JSONL export file, relative to the vault root.")
+      .setDesc("Path to jsonl export file, relative to the vault root.")
       .addText((text) =>
         text
-          .setPlaceholder(DEFAULT_SETTINGS.exportPath)
+          .setPlaceholder(defaultExportPathValue)
           .setValue(this.host.settings.exportPath)
           .onChange(async (value) => {
-            this.host.settings.exportPath = value.trim() || DEFAULT_SETTINGS.exportPath;
+            this.host.settings.exportPath = value.trim() || defaultExportPathValue;
             await this.host.saveSettings();
           })
       );
 
     new Setting(containerEl)
       .setName("Export target")
-      .setDesc("Export JSONL only, or export JSONL and trigger backend refresh.")
+      .setDesc("Export jsonl only, or export jsonl and trigger backend refresh.")
       .addDropdown((dropdown) =>
         dropdown
-          .addOption("jsonl", "JSONL file")
+          .addOption("jsonl", "Jsonl file")
           .addOption("backend-refresh", "Backend refresh URL")
           .setValue(this.host.settings.exportTarget)
           .onChange(async (value) => {
@@ -82,7 +96,7 @@ export class MomentumSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Backend refresh URL")
-      .setDesc("Base URL for backend refresh endpoint. Uses POST /refresh.")
+      .setDesc("Base URL for backend refresh endpoint. Uses post /refresh.")
       .addText((text) =>
         text
           .setPlaceholder(DEFAULT_SETTINGS.exportBackendUrl)

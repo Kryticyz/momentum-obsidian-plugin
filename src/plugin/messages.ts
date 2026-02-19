@@ -43,6 +43,9 @@ export const messages = {
     `Momentum: exported ${count} entries to ${exportPath}, but backend refresh failed (${detail}).`
 };
 
+/**
+ * Converts unknown thrown values into readable error text for notices and logs.
+ */
 export function toErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message.trim().length > 0) {
     return error.message.trim();

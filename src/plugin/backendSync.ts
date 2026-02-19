@@ -1,3 +1,6 @@
+/**
+ * Normalizes a configured backend URL to the canonical refresh endpoint.
+ */
 export function buildBackendRefreshUrl(baseUrl: string): string {
   const trimmed = baseUrl.trim();
   if (trimmed.length === 0) {
@@ -7,7 +10,7 @@ export function buildBackendRefreshUrl(baseUrl: string): string {
   let parsed: URL;
   try {
     parsed = new URL(trimmed);
-  } catch (_error) {
+  } catch {
     throw new Error("backend refresh URL is invalid");
   }
 
@@ -27,11 +30,17 @@ export interface BackendRefreshResponse {
   body: string;
 }
 
+/**
+ * Transport hook used to issue the backend refresh request.
+ */
 export type BackendRefreshRequester = (refreshUrl: string) => Promise<BackendRefreshResponse>;
 
+/**
+ * Sends a backend refresh request and throws when the response is non-success.
+ */
 export async function postBackendRefresh(
   baseUrl: string,
-  requestImpl: BackendRefreshRequester = defaultRefreshRequest
+  requestImpl: BackendRefreshRequester
 ): Promise<string> {
   const refreshUrl = buildBackendRefreshUrl(baseUrl);
 
@@ -43,26 +52,4 @@ export async function postBackendRefresh(
   }
 
   return refreshUrl;
-}
-
-async function defaultRefreshRequest(refreshUrl: string): Promise<BackendRefreshResponse> {
-  // OpenAPI contract: POST /refresh, no request body.
-  const response = await fetch(refreshUrl, {
-    method: "POST",
-    headers: {
-      Accept: "application/json"
-    }
-  });
-
-  let body = "";
-  try {
-    body = await response.text();
-  } catch (_error) {
-    body = "";
-  }
-
-  return {
-    status: response.status,
-    body
-  };
 }

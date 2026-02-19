@@ -19,6 +19,9 @@ interface ParsedHeading {
 const TIME_LOG_LINE_RE =
   /^\s*-\s*(\d{2}:\d{2})-(\d{2}:\d{2})\s+\[\[([^\]]+)\]\](?:\s+\((\d+)m\))?(?:\s+"([^"]*)")?\s*$/;
 
+/**
+ * Parses a single time-log markdown list item into structured fields.
+ */
 export function parseTimeLogLine(line: string): Omit<TimeLogEntry, "filePath" | "date" | "lineNumber"> | null {
   const match = line.match(TIME_LOG_LINE_RE);
   if (!match) {
@@ -46,6 +49,9 @@ export function parseTimeLogLine(line: string): Omit<TimeLogEntry, "filePath" | 
   };
 }
 
+/**
+ * Extracts all time-log entries from a named level-2 section in a note.
+ */
 export function parseTimeLogsFromContent(
   content: string,
   filePath: string,
@@ -77,6 +83,9 @@ export function parseTimeLogsFromContent(
   return entries;
 }
 
+/**
+ * Aggregates minutes by normalized project name.
+ */
 export function aggregateMinutesByProject(entries: TimeLogEntry[]): Map<string, number> {
   const totals = new Map<string, number>();
 
@@ -88,6 +97,9 @@ export function aggregateMinutesByProject(entries: TimeLogEntry[]): Map<string, 
   return totals;
 }
 
+/**
+ * Encodes time-log entries to newline-delimited JSON.
+ */
 export function entriesToJsonl(entries: TimeLogEntry[]): string {
   const lines = entries
     .map((entry) =>
@@ -108,6 +120,9 @@ export function entriesToJsonl(entries: TimeLogEntry[]): string {
   return lines.length > 0 ? `${lines}\n` : "";
 }
 
+/**
+ * Normalizes a wiki-link target into a project name token.
+ */
 function normalizeProjectFromLink(rawLink: string): string | null {
   const target = rawLink.split("|")[0].trim();
   if (!target) {
@@ -122,10 +137,16 @@ function normalizeProjectFromLink(rawLink: string): string | null {
   return leaf.replace(/\.md$/i, "");
 }
 
+/**
+ * Splits content into normalized LF-delimited lines.
+ */
 function splitLines(content: string): string[] {
   return content.length === 0 ? [] : content.replace(/\r\n/g, "\n").split("\n");
 }
 
+/**
+ * Finds the line bounds for a level-2 section title.
+ */
 function findSectionBounds(lines: string[], headingTitle: string): { start: number; end: number } | null {
   const title = headingTitle.trim();
   let start = -1;
@@ -154,6 +175,9 @@ function findSectionBounds(lines: string[], headingTitle: string): { start: numb
   return { start, end };
 }
 
+/**
+ * Parses a markdown heading line into level and title components.
+ */
 function parseHeading(line: string): ParsedHeading | null {
   const match = line.match(/^(#{1,6})\s+(.*)$/);
   if (!match) {

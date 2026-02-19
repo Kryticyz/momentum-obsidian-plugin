@@ -16,6 +16,9 @@ export interface StartTimerFlowCoreInput {
   notify: (message: string) => void;
 }
 
+/**
+ * Shared start flow that validates project selection and starts timer persistence.
+ */
 export async function runStartTimerFlowCore(input: StartTimerFlowCoreInput): Promise<boolean> {
   const running = input.timerService.getActiveTimer();
   if (running) {
@@ -27,7 +30,7 @@ export async function runStartTimerFlowCore(input: StartTimerFlowCoreInput): Pro
   try {
     activeProjects = await input.getActiveProjects();
   } catch (error) {
-    console.error(error);
+    console.error("Momentum: failed to load timer projects.", error);
     input.notify(messages.timerProjectsLoadFailed(toErrorMessage(error)));
     return false;
   }
@@ -53,7 +56,7 @@ export async function runStartTimerFlowCore(input: StartTimerFlowCoreInput): Pro
   try {
     selected = await input.openPicker("Select active project", items);
   } catch (error) {
-    console.error(error);
+    console.error("Momentum: failed to open timer project picker.", error);
     input.notify(messages.timerPickerOpenFailed(toErrorMessage(error)));
     return false;
   }
@@ -82,7 +85,7 @@ export async function runStartTimerFlowCore(input: StartTimerFlowCoreInput): Pro
       startedAtMs
     });
   } catch (error) {
-    console.error(error);
+    console.error("Momentum: failed to persist timer start.", error);
     input.notify(messages.timerPersistFailed(toErrorMessage(error)));
     return false;
   }
@@ -99,6 +102,9 @@ export async function runStartTimerFlowCore(input: StartTimerFlowCoreInput): Pro
   return true;
 }
 
+/**
+ * Prompts for manual project name selection when picker-based selection is cancelled.
+ */
 async function resolveSelectionFallback(
   activeProjects: ProjectRecord[],
   openTextPrompt: (

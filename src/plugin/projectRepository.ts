@@ -33,26 +33,41 @@ interface ProjectRepositoryOptions {
   timerTerminalStatuses?: readonly string[];
 }
 
+/**
+ * Scans vault markdown files and returns project records for snapshot/timer flows.
+ */
 export class ProjectRepository {
   private readonly app: App;
   private readonly getDueDateField: () => string;
   private readonly timerTerminalStatuses: ReadonlySet<string>;
 
+  /**
+   * Creates a repository configured with due-date key and terminal status rules.
+   */
   constructor(options: ProjectRepositoryOptions) {
     this.app = options.app;
     this.getDueDateField = options.getDueDateField;
     this.timerTerminalStatuses = new Set(options.timerTerminalStatuses ?? TIMER_TERMINAL_STATUSES);
   }
 
+  /**
+   * Returns active projects for snapshot rendering.
+   */
   async getSnapshotProjects(): Promise<ProjectRecord[]> {
     const result = await this.scan("snapshot");
     return result.projects;
   }
 
+  /**
+   * Returns timer-eligible project candidates with scan diagnostics.
+   */
   async getTimerCandidateProjects(): Promise<ProjectScanResult> {
     return this.scan("timer");
   }
 
+  /**
+   * Performs a full vault scan for projects, filtering according to scan mode.
+   */
   async scan(mode: ScanMode): Promise<ProjectScanResult> {
     const projects: ProjectRecord[] = [];
     const parseFailures: string[] = [];
@@ -102,6 +117,9 @@ export class ProjectRepository {
     };
   }
 
+  /**
+   * Reads frontmatter from metadata cache or note content.
+   */
   private async readFrontmatter(file: TFile): Promise<Record<string, unknown> | null> {
     const cached = this.app.metadataCache.getFileCache(file)?.frontmatter;
     if (cached && typeof cached === "object") {
@@ -114,7 +132,7 @@ export class ProjectRepository {
       return null;
     }
 
-    const parsed = parseYaml(info.frontmatter);
+    const parsed: unknown = parseYaml(info.frontmatter);
     if (!parsed || typeof parsed !== "object") {
       throw new Error(`Frontmatter is not an object in ${file.path}`);
     }
@@ -122,6 +140,9 @@ export class ProjectRepository {
     return parsed as Record<string, unknown>;
   }
 
+  /**
+   * Detects project markers across common frontmatter conventions.
+   */
   private hasProjectMarker(frontmatter: Record<string, unknown>): boolean {
     if (hasProjectTag(frontmatter.tags) || hasProjectTag(frontmatter.tag)) {
       return true;
@@ -148,10 +169,16 @@ export class ProjectRepository {
     return false;
   }
 
+  /**
+   * Returns the raw project status value from known status keys.
+   */
   private getProjectStatus(frontmatter: Record<string, unknown>): unknown {
     return frontmatter.status ?? frontmatter.state;
   }
 
+  /**
+   * Returns true when a status should be shown in timer project pickers.
+   */
   private isTimerEligibleStatus(rawStatus: unknown): boolean {
     if (typeof rawStatus !== "string") {
       return true;
@@ -165,6 +192,9 @@ export class ProjectRepository {
     return !this.timerTerminalStatuses.has(normalized);
   }
 
+  /**
+   * Normalizes unknown frontmatter values to lowercase strings.
+   */
   private normalizeFrontmatterString(value: unknown): string {
     if (typeof value !== "string") {
       return "";

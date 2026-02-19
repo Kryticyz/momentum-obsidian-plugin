@@ -31,7 +31,7 @@ describe("persistence migration", () => {
     const v2 = {
       version: CURRENT_DATA_VERSION,
       settings: {
-        exportPath: ".obsidian/data.jsonl",
+        exportPath: "config/data.jsonl",
         exportTarget: "backend-refresh",
         exportBackendUrl: "http://localhost:8080"
       },
@@ -45,7 +45,7 @@ describe("persistence migration", () => {
     const loaded = loadPersistedData(v2);
     expect(loaded.migrated).toBe(false);
     expect(loaded.data.version).toBe(CURRENT_DATA_VERSION);
-    expect(loaded.data.settings.exportPath).toBe(".obsidian/data.jsonl");
+    expect(loaded.data.settings.exportPath).toBe("config/data.jsonl");
     expect(loaded.data.settings.exportTarget).toBe("backend-refresh");
     expect(loaded.data.settings.exportBackendUrl).toBe("http://localhost:8080");
     expect(loaded.data.activeTimer).toBeNull();

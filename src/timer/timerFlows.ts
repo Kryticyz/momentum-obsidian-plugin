@@ -61,6 +61,9 @@ interface AdjustTimerStartFlowInput {
   ui?: FlowUiDeps;
 }
 
+/**
+ * Runs the standard interactive start-timer flow.
+ */
 export async function runStartTimerFlow(input: StartTimerFlowInput): Promise<boolean> {
   const openPicker = input.ui?.openPickerModal ?? openPickerModal;
   const openPrompt = input.ui?.openTextPromptModal ?? openTextPromptModal;
@@ -75,6 +78,9 @@ export async function runStartTimerFlow(input: StartTimerFlowInput): Promise<boo
   });
 }
 
+/**
+ * Runs the start flow with an additional backdated-start prompt and confirmation.
+ */
 export async function runStartTimerInPastFlow(input: StartTimerFlowInput): Promise<boolean> {
   const openPicker = input.ui?.openPickerModal ?? openPickerModal;
   const openPrompt = input.ui?.openTextPromptModal ?? openTextPromptModal;
@@ -125,6 +131,9 @@ export async function runStartTimerInPastFlow(input: StartTimerFlowInput): Promi
   });
 }
 
+/**
+ * Runs the interactive adjustment flow for the currently active timer start time.
+ */
 export async function runAdjustTimerStartFlow(input: AdjustTimerStartFlowInput): Promise<boolean> {
   const openPrompt = input.ui?.openTextPromptModal ?? openTextPromptModal;
   const openConfirm = input.ui?.openConfirmModal ?? openConfirmModal;
@@ -190,6 +199,9 @@ export async function runAdjustTimerStartFlow(input: AdjustTimerStartFlowInput):
   return true;
 }
 
+/**
+ * Runs the stop flow and delegates note capture to modal prompts when needed.
+ */
 export async function runStopTimerFlow(input: StopTimerFlowInput): Promise<boolean> {
   const openPrompt = input.ui?.openTextPromptModal ?? openTextPromptModal;
   return runStopTimerFlowCore({
@@ -203,6 +215,9 @@ export async function runStopTimerFlow(input: StopTimerFlowInput): Promise<boole
   });
 }
 
+/**
+ * Emits UI notifications through injected handlers, falling back to Obsidian notices.
+ */
 function notify(ui: FlowUiDeps | undefined, message: string): void {
   if (ui?.notify) {
     ui.notify(message);

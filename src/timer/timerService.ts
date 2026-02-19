@@ -20,6 +20,9 @@ export interface TimerStopDetails {
   durationMinutes: number;
 }
 
+/**
+ * Owns active timer state, persistence, and subscriber notifications.
+ */
 export class TimerService {
   private activeTimer: ActiveTimerState | null;
   private readonly saveActiveTimer: (activeTimer: ActiveTimerState | null) => Promise<void>;
@@ -28,6 +31,9 @@ export class TimerService {
   private readonly listeners = new Set<TimerListener>();
   private ticker: ReturnType<typeof globalThis.setInterval> | null = null;
 
+  /**
+   * Creates a timer service using persisted state and storage callbacks.
+   */
   constructor(options: TimerServiceOptions) {
     this.activeTimer = options.initialTimer;
     this.saveActiveTimer = options.saveActiveTimer;
@@ -36,14 +42,23 @@ export class TimerService {
     this.syncTicker();
   }
 
+  /**
+   * Returns the active timer state, or null when idle.
+   */
   getActiveTimer(): ActiveTimerState | null {
     return this.activeTimer;
   }
 
+  /**
+   * Returns true when a timer is currently running.
+   */
   isRunning(): boolean {
     return !!this.activeTimer;
   }
 
+  /**
+   * Returns a snapshot containing active timer and elapsed milliseconds.
+   */
   getSnapshot(now = this.now()): TimerSnapshot {
     const activeTimer = this.activeTimer;
     const elapsedMs = activeTimer ? Math.max(0, now - activeTimer.startedAt) : 0;
@@ -55,6 +70,9 @@ export class TimerService {
     };
   }
 
+  /**
+   * Subscribes to timer updates and immediately emits the current snapshot.
+   */
   subscribe(listener: TimerListener): () => void {
     this.listeners.add(listener);
     this.emitToListener(listener, this.getSnapshot());
@@ -64,6 +82,9 @@ export class TimerService {
     };
   }
 
+  /**
+   * Starts a new timer and persists it, rolling back on persistence failure.
+   */
   async start(input: TimerStartInput): Promise<boolean> {
     if (this.activeTimer) {
       return false;
@@ -95,6 +116,9 @@ export class TimerService {
     }
   }
 
+  /**
+   * Computes derived stop details for the active timer without mutating state.
+   */
   getStopDetails(stoppedAtMs = this.now()): TimerStopDetails | null {
     const activeTimer = this.activeTimer;
     if (!activeTimer) {
@@ -115,6 +139,9 @@ export class TimerService {
     };
   }
 
+  /**
+   * Adjusts the active timer start timestamp and persists the change.
+   */
   async adjustStart(startedAtMs: number): Promise<boolean> {
     const previous = this.activeTimer;
     if (!previous) {
@@ -144,6 +171,9 @@ export class TimerService {
     }
   }
 
+  /**
+   * Clears the active timer and persists null state.
+   */
   async clear(): Promise<ActiveTimerState | null> {
     const previous = this.activeTimer;
     if (!previous) {
@@ -165,6 +195,9 @@ export class TimerService {
     }
   }
 
+  /**
+   * Cleans up ticker and subscribers.
+   */
   dispose(): void {
     if (this.ticker) {
       globalThis.clearInterval(this.ticker);
@@ -173,6 +206,9 @@ export class TimerService {
     this.listeners.clear();
   }
 
+  /**
+   * Starts/stops the tick interval based on whether a timer is active.
+   */
   private syncTicker(): void {
     if (this.activeTimer && !this.ticker) {
       this.ticker = globalThis.setInterval(() => {
@@ -186,6 +222,9 @@ export class TimerService {
     }
   }
 
+  /**
+   * Broadcasts the latest snapshot to all listeners.
+   */
   private notify(): void {
     const snapshot = this.getSnapshot();
     for (const listener of this.listeners) {
@@ -193,6 +232,9 @@ export class TimerService {
     }
   }
 
+  /**
+   * Invokes a listener with isolation so one failing listener does not break others.
+   */
   private emitToListener(listener: TimerListener, snapshot: TimerSnapshot): void {
     try {
       listener(snapshot);

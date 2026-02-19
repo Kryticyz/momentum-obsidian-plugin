@@ -9,6 +9,9 @@ export interface NoteContext {
   weekStart: string;
 }
 
+/**
+ * Returns true when a string is a valid calendar date in `YYYY-MM-DD` format.
+ */
 export function isValidIsoDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return false;
@@ -24,6 +27,9 @@ export function isValidIsoDate(value: string): boolean {
   );
 }
 
+/**
+ * Detects whether a note basename represents a supported daily or weekly note.
+ */
 export function getNoteContextFromBasename(basename: string): NoteContext | null {
   if (DAILY_NOTE_RE.test(basename) && isValidIsoDate(basename)) {
     return {
@@ -45,6 +51,9 @@ export function getNoteContextFromBasename(basename: string): NoteContext | null
   return null;
 }
 
+/**
+ * Computes the Sunday-start week anchor for a given ISO date.
+ */
 export function getWeekStartSunday(dateIso: string): string {
   const date = isoToUtcDate(dateIso);
   const dayOfWeek = date.getUTCDay();
@@ -52,12 +61,18 @@ export function getWeekStartSunday(dateIso: string): string {
   return utcDateToIso(date);
 }
 
+/**
+ * Adds a day offset to an ISO date and returns a normalized ISO date.
+ */
 export function addDays(dateIso: string, days: number): string {
   const date = isoToUtcDate(dateIso);
   date.setUTCDate(date.getUTCDate() + days);
   return utcDateToIso(date);
 }
 
+/**
+ * Checks whether an ISO date falls within a Sunday-start week window.
+ */
 export function isDateInWeek(dateIso: string, weekStartIso: string): boolean {
   const date = isoToUtcDate(dateIso).getTime();
   const weekStart = isoToUtcDate(weekStartIso).getTime();
@@ -65,6 +80,9 @@ export function isDateInWeek(dateIso: string, weekStartIso: string): boolean {
   return date >= weekStart && date <= weekEnd;
 }
 
+/**
+ * Formats minute totals as compact human-readable durations.
+ */
 export function formatMinutes(totalMinutes: number): string {
   const safe = Math.max(0, Math.round(totalMinutes));
   const hours = Math.floor(safe / 60);
@@ -81,6 +99,9 @@ export function formatMinutes(totalMinutes: number): string {
   return `${hours}h ${minutes}m`;
 }
 
+/**
+ * Computes elapsed minutes for an `HH:MM-HH:MM` time range.
+ */
 export function minutesFromTimeRange(start: string, end: string): number {
   const startMinutes = parseClockMinutes(start);
   const endMinutes = parseClockMinutes(end);
@@ -97,6 +118,9 @@ export function minutesFromTimeRange(start: string, end: string): number {
   return raw + 24 * 60;
 }
 
+/**
+ * Parses a 24-hour clock string and converts it to total minutes.
+ */
 function parseClockMinutes(value: string): number | null {
   const match = value.match(/^(\d{2}):(\d{2})$/);
   if (!match) {
@@ -112,11 +136,17 @@ function parseClockMinutes(value: string): number | null {
   return hours * 60 + minutes;
 }
 
+/**
+ * Creates a UTC-noon date object from an ISO date to avoid timezone drift.
+ */
 function isoToUtcDate(dateIso: string): Date {
   const [year, month, day] = dateIso.split("-").map(Number);
   return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
 }
 
+/**
+ * Converts a UTC date back to canonical `YYYY-MM-DD` format.
+ */
 function utcDateToIso(date: Date): string {
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");

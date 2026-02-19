@@ -7,12 +7,20 @@
     "build": "mkdir -p release/momentum && cp manifest.json release/momentum/manifest.json && cp styles.css release/momentum/styles.css && bun build src/main.ts --outfile release/momentum/main.js --target browser --format cjs --external obsidian --external electron --external @codemirror/state --external @codemirror/view --external @codemirror/language --external @codemirror/search --external @lezer/common --external @lezer/highlight --external @lezer/lr",
     "dev": "mkdir -p release/momentum && cp manifest.json release/momentum/manifest.json && cp styles.css release/momentum/styles.css && bun build src/main.ts --outfile release/momentum/main.js --target browser --format cjs --external obsidian --external electron --external @codemirror/state --external @codemirror/view --external @codemirror/language --external @codemirror/search --external @lezer/common --external @lezer/highlight --external @lezer/lr --watch",
     "install:link": "bash scripts/link-obsidian-plugin.sh",
+    "lint": "eslint . --max-warnings=0",
+    "lint:obsidian": "eslint src --max-warnings=0",
     "test": "bun test"
   },
   "devDependencies": {
+    "@eslint/js": "9.30.1",
+    "@eslint/json": "0.14.0",
     "@types/node": "^20.16.11",
+    "@typescript-eslint/parser": "8.35.1",
     "bun-types": "^1.1.38",
+    "eslint": "9.39.1",
+    "eslint-plugin-obsidianmd": "0.1.9",
     "obsidian": "^1.6.7",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "8.35.1"
   }
 }

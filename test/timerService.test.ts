@@ -2,6 +2,21 @@ import { describe, expect, test } from "bun:test";
 import { TimerService } from "../src/timer/timerService";
 import { ActiveTimerState } from "../src/timer/timerTypes";
 
+async function expectThrowsWithMessage(
+  run: () => Promise<unknown>,
+  expectedMessage: string
+): Promise<void> {
+  let thrown: unknown = null;
+  try {
+    await run();
+  } catch (error) {
+    thrown = error;
+  }
+
+  expect(thrown).toBeInstanceOf(Error);
+  expect((thrown as Error).message).toContain(expectedMessage);
+}
+
 describe("timer service", () => {
   test("starts, reports stop details, and clears", async () => {
     const persisted: Array<ActiveTimerState | null> = [];
@@ -137,12 +152,13 @@ describe("timer service", () => {
       }
     });
 
-    await expect(
-      service.start({
+    await expectThrowsWithMessage(
+      () => service.start({
         projectPath: "Projects/Alpha.md",
         projectName: "Alpha"
-      })
-    ).rejects.toThrow("persist failed");
+      }),
+      "persist failed"
+    );
 
     expect(service.isRunning()).toBe(false);
     expect(service.getActiveTimer()).toBeNull();
@@ -167,7 +183,10 @@ describe("timer service", () => {
       projectName: "Alpha"
     });
 
-    await expect(service.adjustStart(now - (45 * 60_000))).rejects.toThrow("persist failed");
+    await expectThrowsWithMessage(
+      () => service.adjustStart(now - (45 * 60_000)),
+      "persist failed"
+    );
     expect(service.getActiveTimer()?.startedAt).toBe(now);
     service.dispose();
   });
@@ -189,7 +208,10 @@ describe("timer service", () => {
       }
     });
 
-    await expect(service.clear()).rejects.toThrow("persist failed");
+    await expectThrowsWithMessage(
+      () => service.clear(),
+      "persist failed"
+    );
     expect(service.isRunning()).toBe(true);
     expect(service.getActiveTimer()?.projectName).toBe("Alpha");
     service.dispose();

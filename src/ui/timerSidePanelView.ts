@@ -24,6 +24,9 @@ interface TimerSidePanelViewOptions {
   openTodayDailyNote: () => Promise<void>;
 }
 
+/**
+ * Side-panel view for starting/stopping timers and reviewing current timer state.
+ */
 export class TimerSidePanelView extends ItemView {
   private readonly options: TimerSidePanelViewOptions;
   private unsubscribe: () => void = () => {};
@@ -37,28 +40,43 @@ export class TimerSidePanelView extends ItemView {
   private stopButton: ButtonComponent | null = null;
   private switchButton: ButtonComponent | null = null;
 
+  /**
+   * Creates the timer side-panel view bound to controller callbacks.
+   */
   constructor(leaf: WorkspaceLeaf, options: TimerSidePanelViewOptions) {
     super(leaf);
     this.options = options;
   }
 
+  /**
+   * Returns the unique view type id used for workspace registration.
+   */
   getViewType(): string {
     return TIMER_SIDE_PANEL_VIEW_TYPE;
   }
 
+  /**
+   * Returns the user-visible name of the side panel.
+   */
   getDisplayText(): string {
-    return "Project Timer";
+    return "Project timer";
   }
 
+  /**
+   * Returns the icon id used in Obsidian UI chrome.
+   */
   getIcon(): string {
     return "timer";
   }
 
-  async onOpen(): Promise<void> {
+  /**
+   * Builds the panel layout and subscribes to timer snapshots.
+   */
+  onOpen(): void {
     this.contentEl.empty();
     this.contentEl.addClass("momentum-timer-panel");
 
-    this.contentEl.createEl("h3", { text: "Project Timer" });
+    this.contentEl.createEl("h3", { text: "Project timer" });
 
     const statusWrap = this.contentEl.createDiv({ cls: "momentum-timer-status" });
     this.projectEl = statusWrap.createDiv({ cls: "momentum-timer-project" });
@@ -75,38 +93,38 @@ export class TimerSidePanelView extends ItemView {
     const controls = this.contentEl.createDiv({ cls: "momentum-timer-actions" });
 
     this.startButton = new ButtonComponent(controls)
-      .setButtonText("Start Timer")
+      .setButtonText("Start timer")
       .onClick(() => {
         void this.options.startTimer();
       });
 
     this.startInPastButton = new ButtonComponent(controls)
-      .setButtonText("Start in Past")
+      .setButtonText("Start in past")
       .onClick(() => {
         void this.options.startTimerInPast();
       });
 
     this.adjustStartButton = new ButtonComponent(controls)
-      .setButtonText("Adjust Start")
+      .setButtonText("Adjust start")
       .onClick(() => {
         void this.options.adjustTimerStart();
       });
 
     this.stopButton = new ButtonComponent(controls)
-      .setButtonText("Stop & Log")
+      .setButtonText("Stop and log")
       .setCta()
       .onClick(() => {
         void this.stopWithOptionalNote();
       });
 
     this.switchButton = new ButtonComponent(controls)
-      .setButtonText("Switch Project")
+      .setButtonText("Switch project")
       .onClick(() => {
         void this.switchWithOptionalNote();
       });
 
     new ButtonComponent(controls)
-      .setButtonText("Open Today")
+      .setButtonText("Open today")
       .onClick(() => {
         void this.options.openTodayDailyNote();
       });
@@ -116,11 +134,17 @@ export class TimerSidePanelView extends ItemView {
     });
   }
 
-  async onClose(): Promise<void> {
+  /**
+   * Unsubscribes listeners and clears panel DOM.
+   */
+  onClose(): void {
     this.unsubscribe();
     this.contentEl.empty();
   }
 
+  /**
+   * Updates panel labels and button enabled states from the latest timer snapshot.
+   */
   private renderSnapshot(snapshot: TimerSnapshot): void {
     if (!this.projectEl || !this.elapsedEl || !this.startedAtEl) {
       return;
@@ -150,6 +174,9 @@ export class TimerSidePanelView extends ItemView {
     this.switchButton?.setDisabled(false);
   }
 
+  /**
+   * Stops the timer using an optional note override and clears note input on success.
+   */
   private async stopWithOptionalNote(): Promise<void> {
     const noteOverride = this.getOptionalNoteOverride();
     const stopped = await this.options.stopTimer(noteOverride);
@@ -158,6 +185,9 @@ export class TimerSidePanelView extends ItemView {
     }
   }
 
+  /**
+   * Switches to a new timer using an optional note override and clears note input on success.
+   */
   private async switchWithOptionalNote(): Promise<void> {
     const noteOverride = this.getOptionalNoteOverride();
     const switched = await this.options.switchTimer(noteOverride);
@@ -166,6 +196,9 @@ export class TimerSidePanelView extends ItemView {
     }
   }
 
+  /**
+   * Returns a trimmed note override only when the input contains text.
+   */
   private getOptionalNoteOverride(): string | undefined {
     if (!this.noteInput) {
       return undefined;

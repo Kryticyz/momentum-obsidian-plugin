@@ -14,6 +14,9 @@ export interface PersistenceLoadResult {
   migrated: boolean;
 }
 
+/**
+ * Loads persisted plugin data, applying validation and migration defaults.
+ */
 export function loadPersistedData(raw: unknown): PersistenceLoadResult {
   const record = asRecord(raw);
   const version = typeof record?.version === "number" ? record.version : null;
@@ -32,6 +35,9 @@ export function loadPersistedData(raw: unknown): PersistenceLoadResult {
   };
 }
 
+/**
+ * Builds the persisted payload from in-memory settings and timer state.
+ */
 export function buildPersistedData(
   settings: MomentumSettings,
   activeTimer: ActiveTimerState | null
@@ -43,6 +49,9 @@ export function buildPersistedData(
   };
 }
 
+/**
+ * Picks valid setting fields from unknown data and sanitizes their values.
+ */
 function sanitizeSettings(raw: unknown): Partial<MomentumSettings> {
   const record = asRecord(raw);
   if (!record) {
@@ -79,10 +88,16 @@ function sanitizeSettings(raw: unknown): Partial<MomentumSettings> {
   return settings;
 }
 
+/**
+ * Type guard for export mode settings.
+ */
 function isExportTarget(value: unknown): value is ExportTarget {
   return value === "jsonl" || value === "backend-refresh";
 }
 
+/**
+ * Validates persisted timer state and returns a safe active-timer object.
+ */
 function sanitizeActiveTimer(raw: unknown): ActiveTimerState | null {
   const record = asRecord(raw);
   if (!record) {
@@ -102,6 +117,9 @@ function sanitizeActiveTimer(raw: unknown): ActiveTimerState | null {
   return { projectPath, projectName, startedAt };
 }
 
+/**
+ * Narrows unknown values to plain key/value records.
+ */
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object") {
     return null;

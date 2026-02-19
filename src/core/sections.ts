@@ -14,6 +14,9 @@ interface SectionBounds {
   end: number;
 }
 
+/**
+ * Inserts or replaces the active-projects section using the latest hierarchy and weekly totals.
+ */
 export function upsertActiveProjectsSection(
   content: string,
   flattenedProjects: FlattenedProject[],
@@ -23,6 +26,9 @@ export function upsertActiveProjectsSection(
   return replaceWholeSection(content, ACTIVE_PROJECTS_HEADING, lines);
 }
 
+/**
+ * Ensures the time-log section exists and contains exactly one controls block.
+ */
 export function upsertTimeLogsSection(content: string): string {
   const existing = getSectionBodyLines(content, TIME_LOGS_HEADING);
   const preservedLines = existing ? removeExistingControls(existing) : [];
@@ -38,6 +44,9 @@ export function upsertTimeLogsSection(content: string): string {
   return replaceWholeSection(content, TIME_LOGS_HEADING, body);
 }
 
+/**
+ * Appends a new log line to the end of the time-log section, creating it when missing.
+ */
 export function appendTimeLogLine(content: string, line: string): string {
   const withSection = upsertTimeLogsSection(content);
   const allLines = splitLines(withSection);
@@ -55,6 +64,9 @@ export function appendTimeLogLine(content: string, line: string): string {
   return joinLines(updated);
 }
 
+/**
+ * Returns the raw body lines for a level-2 section title.
+ */
 export function getSectionBodyLines(content: string, headingTitle: string): string[] | null {
   const lines = splitLines(content);
   const bounds = findSectionBounds(lines, headingTitle);
@@ -65,6 +77,9 @@ export function getSectionBodyLines(content: string, headingTitle: string): stri
   return lines.slice(bounds.start + 1, bounds.end);
 }
 
+/**
+ * Replaces the entire body of a section and creates the section when absent.
+ */
 function replaceWholeSection(content: string, headingTitle: string, sectionBodyLines: string[]): string {
   const lines = splitLines(content);
   const bounds = findSectionBounds(lines, headingTitle);
@@ -83,6 +98,9 @@ function replaceWholeSection(content: string, headingTitle: string, sectionBodyL
   return joinLines(updated);
 }
 
+/**
+ * Renders markdown table rows for active projects with weekly hour totals.
+ */
 function renderActiveProjectsSectionLines(
   flattenedProjects: FlattenedProject[],
   weeklyMinutesByProject: Map<string, number>
@@ -111,6 +129,9 @@ function renderActiveProjectsSectionLines(
   return lines;
 }
 
+/**
+ * Removes a previously rendered controls block from existing section lines.
+ */
 function removeExistingControls(bodyLines: string[]): string[] {
   const start = bodyLines.findIndex((line) => line.trim() === CONTROLS_BLOCK_START);
   const end = bodyLines.findIndex((line) => line.trim() === CONTROLS_BLOCK_END);
@@ -124,6 +145,9 @@ function removeExistingControls(bodyLines: string[]): string[] {
   return [...before, ...after];
 }
 
+/**
+ * Returns the canonical timer controls code block marker lines.
+ */
 function renderControlsBlockLines(): string[] {
   return [
     CONTROLS_BLOCK_START,
@@ -133,6 +157,9 @@ function renderControlsBlockLines(): string[] {
   ];
 }
 
+/**
+ * Locates start/end line indexes for a level-2 markdown section.
+ */
 function findSectionBounds(lines: string[], headingTitle: string): SectionBounds | null {
   const title = headingTitle.trim();
   let start = -1;
@@ -161,6 +188,9 @@ function findSectionBounds(lines: string[], headingTitle: string): SectionBounds
   return { start, end };
 }
 
+/**
+ * Parses a markdown heading line and returns its level and normalized title.
+ */
 function parseHeading(line: string): { level: number; title: string } | null {
   const match = line.match(/^(#{1,6})\s+(.*)$/);
   if (!match) {
@@ -173,14 +203,23 @@ function parseHeading(line: string): { level: number; title: string } | null {
   };
 }
 
+/**
+ * Splits content into normalized LF-delimited lines.
+ */
 function splitLines(content: string): string[] {
   return content.length === 0 ? [] : content.replace(/\r\n/g, "\n").split("\n");
 }
 
+/**
+ * Joins lines back into normalized markdown text with a trailing newline.
+ */
 function joinLines(lines: string[]): string {
   return `${lines.join("\n").replace(/\n{3,}$/g, "\n\n")}\n`;
 }
 
+/**
+ * Removes trailing blank lines from a list while preserving in-body spacing.
+ */
 function trimTrailingBlankLines(lines: string[]): string[] {
   const cloned = [...lines];
   while (cloned.length > 0 && cloned[cloned.length - 1].trim().length === 0) {
@@ -189,6 +228,9 @@ function trimTrailingBlankLines(lines: string[]): string[] {
   return cloned;
 }
 
+/**
+ * Removes leading blank lines from a list while preserving in-body spacing.
+ */
 function trimLeadingBlankLines(lines: string[]): string[] {
   const cloned = [...lines];
   while (cloned.length > 0 && cloned[0].trim().length === 0) {

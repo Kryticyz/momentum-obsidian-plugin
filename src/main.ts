@@ -27,7 +27,7 @@ import { messages, toErrorMessage } from "./plugin/messages";
 import { postBackendRefresh } from "./plugin/backendSync";
 import { buildPersistedData, loadPersistedData } from "./plugin/persistence";
 import { ProjectRepository } from "./plugin/projectRepository";
-import { DEFAULT_SETTINGS, MomentumSettings } from "./plugin/settings";
+import { defaultExportPath, DEFAULT_SETTINGS, MomentumSettings } from "./plugin/settings";
 import { MomentumSettingTab } from "./plugin/settingsTab";
 import { TimerController } from "./plugin/timerController";
 import { formatElapsedClock, formatStartedAtLabel } from "./timer/timerDisplay";
@@ -36,6 +36,9 @@ import { ActiveTimerState } from "./timer/timerTypes";
 import { TIMER_SIDE_PANEL_VIEW_TYPE, TimerSidePanelView } from "./ui/timerSidePanelView";
 import { TimerStatusBarController } from "./ui/timerStatusBar";
 
+/**
+ * Main Obsidian plugin entry point that wires settings, timer flows, and note updates.
+ */
 export default class MomentumPlugin extends Plugin {
   settings: MomentumSettings = DEFAULT_SETTINGS;
 
@@ -45,6 +48,9 @@ export default class MomentumPlugin extends Plugin {
   private timerController: TimerController | null = null;
   private timerStatusBarController: TimerStatusBarController | null = null;
 
+  /**
+   * Loads persisted state and registers all plugin integrations.
+   */
   async onload(): Promise<void> {
     await this.loadPluginData();
     this.initializeServices();
@@ -67,10 +73,16 @@ export default class MomentumPlugin extends Plugin {
     });
   }
 
+  /**
+   * Persists current settings to plugin storage.
+   */
   async saveSettings(): Promise<void> {
     await this.savePluginData();
   }
 
+  /**
+   * Rebuilds snapshot sections for a supported daily or weekly note.
+   */
   async regenerateSnapshotForFile(file: TFile, withNotice: boolean): Promise<void> {
     const noteContext = getNoteContextFromBasename(file.basename);
     if (!noteContext) {
@@ -94,6 +106,9 @@ export default class MomentumPlugin extends Plugin {
     }
   }
 
+  /**
+   * Initializes service instances that back commands, views, and status bar UI.
+   */
   private initializeServices(): void {
     this.timerService = new TimerService({
       initialTimer: this.persistedActiveTimer,
@@ -122,6 +137,9 @@ export default class MomentumPlugin extends Plugin {
     });
   }
 
+  /**
+   * Registers command palette actions exposed by the plugin.
+   */
   private registerCommands(): void {
     this.addCommand({
       id: COMMAND_IDS.regenerateSnapshot,
@@ -207,6 +225,9 @@ export default class MomentumPlugin extends Plugin {
     });
   }
 
+  /**
+   * Registers the `project-timer-controls` markdown code block renderer.
+   */
   private registerTimerControlsCodeBlock(): void {
     this.registerMarkdownCodeBlockProcessor("project-timer-controls", (_source, el) => {
       const controls = el.createDiv({ cls: "momentum-controls" });
@@ -235,6 +256,9 @@ export default class MomentumPlugin extends Plugin {
     });
   }
 
+  /**
+   * Registers the timer side panel custom view type.
+   */
   private registerTimerView(): void {
     this.registerView(TIMER_SIDE_PANEL_VIEW_TYPE, (leaf) => {
       return new TimerSidePanelView(leaf, {
@@ -250,6 +274,9 @@ export default class MomentumPlugin extends Plugin {
     });
   }
 
+  /**
+   * Creates and wires the status bar timer controller.
+   */
   private registerTimerStatusBar(): void {
     const element = this.addStatusBarItem();
     this.timerStatusBarController = new TimerStatusBarController({
@@ -261,14 +288,30 @@ export default class MomentumPlugin extends Plugin {
     });
   }
 
+  /**
+   * Adds a command-backed control button to a rendered controls container.
+   */
   private addControlButton(container: HTMLElement, label: string, commandId: string): void {
     new ButtonComponent(container)
       .setButtonText(label)
       .onClick(() => {
-        void this.app.commands.executeCommandById(this.getCommandId(commandId));
+        this.executeCommandById(this.getCommandId(commandId));
       });
   }
 
+  /**
+   * Executes a full command id through Obsidian's command manager.
+   */
+  private executeCommandById(commandId: string): void {
+    const commandManager = this.app.commands as unknown as {
+      executeCommandById: (id: string) => boolean;
+    };
+    commandManager.executeCommandById(commandId);
+  }
+
+  /**
+   * Hooks markdown note creation to optionally auto-regenerate snapshot sections.
+   */
   private registerNoteCreateHook(): void {
     this.registerEvent(
       this.app.vault.on("create", (file: TAbstractFile) => {
@@ -292,6 +335,9 @@ export default class MomentumPlugin extends Plugin {
     );
   }
 
+  /**
+   * Warns when optional companion plugins are unavailable.
+   */
   private checkOptionalDependencies(): void {
     const plugins = (this.app as unknown as { plugins?: { plugins?: Record<string, unknown> } }).plugins?.plugins;
 
@@ -308,6 +354,9 @@ export default class MomentumPlugin extends Plugin {
     }
   }
 
+  /**
+   * Opens or creates the timer side panel and reveals its leaf.
+   */
   private async openTimerSidePanel(): Promise<void> {
     let leaf = this.app.workspace.getLeavesOfType(TIMER_SIDE_PANEL_VIEW_TYPE).at(0);
     if (!leaf) {
@@ -323,9 +372,12 @@ export default class MomentumPlugin extends Plugin {
       type: TIMER_SIDE_PANEL_VIEW_TYPE,
       active: true
     });
-    this.app.workspace.revealLeaf(leaf);
+    void this.app.workspace.revealLeaf(leaf);
   }
 
+  /**
+   * Logs timer project scan diagnostics and shows a summary notice.
+   */
   private async debugTimerProjectScan(): Promise<void> {
     const result = await this.requireProjectRepository().getTimerCandidateProjects();
     const summary = [
@@ -334,9 +386,10 @@ export default class MomentumPlugin extends Plugin {
       `parseFailures=${result.parseFailures.length}`
     ].join(" ");
 
-    console.info("Momentum: timer project scan summary", summary);
+    console.debug("Momentum: timer project scan summary", summary);
     if (result.projects.length > 0) {
-      console.table(
+      console.debug(
+        "Momentum: timer project candidates",
         result.projects.map((project) => ({
           name: project.name,
           path: project.path,
@@ -352,11 +405,14 @@ export default class MomentumPlugin extends Plugin {
     new Notice(messages.timerScanSummary(summary));
   }
 
+  /**
+   * Shows a debug snapshot of the current timer state.
+   */
   private debugTimerState(): void {
     const snapshot = this.requireTimerService().getSnapshot();
     if (!snapshot.activeTimer) {
       new Notice(messages.timerStateIdle);
-      console.info("Momentum: timer state", {
+      console.debug("Momentum: timer state", {
         running: false,
         elapsedMs: snapshot.elapsedMs
       });
@@ -367,7 +423,7 @@ export default class MomentumPlugin extends Plugin {
       `running project=${snapshot.activeTimer.projectName} ` +
       `elapsed=${snapshot.elapsedMs}ms startedAt=${snapshot.activeTimer.startedAt}`;
     new Notice(messages.timerStateRunning(summary));
-    console.info("Momentum: timer state", {
+    console.debug("Momentum: timer state", {
       running: true,
       project: snapshot.activeTimer.projectName,
       path: snapshot.activeTimer.projectPath,
@@ -376,6 +432,9 @@ export default class MomentumPlugin extends Plugin {
     });
   }
 
+  /**
+   * Ensures the target daily note exists and appends a new time-log entry.
+   */
   private async appendLogEntryToDailyNote(dateIso: string, entryLine: string): Promise<void> {
     const relativePath = this.getDailyNotePath(dateIso);
     await this.ensureDirectoryForPath(relativePath);
@@ -390,6 +449,9 @@ export default class MomentumPlugin extends Plugin {
     await this.app.vault.process(file, (content) => appendTimeLogLine(content, entryLine));
   }
 
+  /**
+   * Opens today's daily note in the configured timezone, creating it when needed.
+   */
   private async openTodayDailyNote(): Promise<void> {
     const dateIso = formatDateInTimezone(new Date(), this.settings.timezone);
     const relativePath = this.getDailyNotePath(dateIso);
@@ -404,12 +466,18 @@ export default class MomentumPlugin extends Plugin {
     await this.app.workspace.getLeaf(true).openFile(file);
   }
 
+  /**
+   * Builds the vault-relative path for a daily note date.
+   */
   private getDailyNotePath(dateIso: string): string {
     const folder = this.settings.dailyNoteFolder.trim();
     const rawPath = folder.length > 0 ? `${folder}/${dateIso}.md` : `${dateIso}.md`;
     return normalizePath(rawPath);
   }
 
+  /**
+   * Exports all daily time logs to JSONL and optionally triggers backend refresh.
+   */
   private async exportTimeEntries(): Promise<void> {
     const entries = await this.getAllDailyEntries();
     entries.sort((a, b) => {
@@ -420,7 +488,9 @@ export default class MomentumPlugin extends Plugin {
     });
 
     const jsonl = entriesToJsonl(entries);
-    const exportPath = normalizePath(this.settings.exportPath || DEFAULT_SETTINGS.exportPath);
+    const exportPath = normalizePath(
+      this.settings.exportPath || defaultExportPath(this.app.vault.configDir)
+    );
     await this.ensureDirectoryForPath(exportPath);
     const existing = this.app.vault.getAbstractFileByPath(exportPath);
     if (existing instanceof TFile) {
@@ -468,6 +538,9 @@ export default class MomentumPlugin extends Plugin {
     new Notice(messages.exportedEntries(entries.length, exportPath));
   }
 
+  /**
+   * Collects all time-log entries from every daily note in the vault.
+   */
   private async getAllDailyEntries(): Promise<TimeLogEntry[]> {
     const candidates = this.app.vault
       .getMarkdownFiles()
@@ -486,6 +559,9 @@ export default class MomentumPlugin extends Plugin {
     return batches.flat();
   }
 
+  /**
+   * Collects time-log entries only for dates in a target week.
+   */
   private async getEntriesForWeek(weekStartIso: string): Promise<TimeLogEntry[]> {
     const candidates = this.app.vault
       .getMarkdownFiles()
@@ -508,6 +584,9 @@ export default class MomentumPlugin extends Plugin {
     return batches.flat();
   }
 
+  /**
+   * Creates missing folder segments for a vault-relative file path.
+   */
   private async ensureDirectoryForPath(path: string): Promise<void> {
     const parts = normalizePath(path).split("/");
     parts.pop();
@@ -526,6 +605,9 @@ export default class MomentumPlugin extends Plugin {
     }
   }
 
+  /**
+   * Loads persisted plugin data and applies defaults/migrations.
+   */
   private async loadPluginData(): Promise<void> {
     const raw = (await this.loadData()) as unknown;
     const { data, migrated } = loadPersistedData(raw);
@@ -533,6 +615,12 @@ export default class MomentumPlugin extends Plugin {
       ...DEFAULT_SETTINGS,
       ...data.settings
     };
+    if (
+      this.settings.exportPath.trim().length === 0 ||
+      this.settings.exportPath === DEFAULT_SETTINGS.exportPath
+    ) {
+      this.settings.exportPath = defaultExportPath(this.app.vault.configDir);
+    }
     this.persistedActiveTimer = data.activeTimer;
 
     if (migrated) {
@@ -540,14 +628,23 @@ export default class MomentumPlugin extends Plugin {
     }
   }
 
+  /**
+   * Saves current settings and active timer state to plugin storage.
+   */
   private async savePluginData(): Promise<void> {
     await this.saveData(buildPersistedData(this.settings, this.persistedActiveTimer));
   }
 
+  /**
+   * Builds a fully-qualified plugin command id.
+   */
   private getCommandId(localId: string): string {
     return `${this.manifest.id}:${localId}`;
   }
 
+  /**
+   * Returns the timer service instance or throws when uninitialized.
+   */
   private requireTimerService(): TimerService {
     if (!this.timerService) {
       throw new Error("Timer service not initialized.");
@@ -555,6 +652,9 @@ export default class MomentumPlugin extends Plugin {
     return this.timerService;
   }
 
+  /**
+   * Returns the project repository instance or throws when uninitialized.
+   */
   private requireProjectRepository(): ProjectRepository {
     if (!this.projectRepository) {
       throw new Error("Project repository not initialized.");
@@ -562,6 +662,9 @@ export default class MomentumPlugin extends Plugin {
     return this.projectRepository;
   }
 
+  /**
+   * Returns the timer controller instance or throws when uninitialized.
+   */
   private requireTimerController(): TimerController {
     if (!this.timerController) {
       throw new Error("Timer controller not initialized.");

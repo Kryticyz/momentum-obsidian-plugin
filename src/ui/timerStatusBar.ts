@@ -9,6 +9,9 @@ interface TimerStatusBarControllerOptions {
   stopTimer: () => Promise<boolean>;
 }
 
+/**
+ * Binds timer state to a clickable status bar element.
+ */
 export class TimerStatusBarController {
   private readonly element: HTMLElement;
   private readonly timerService: TimerService;
@@ -17,6 +20,9 @@ export class TimerStatusBarController {
   private readonly stopTimer: () => Promise<boolean>;
   private unsubscribe: () => void = () => {};
 
+  /**
+   * Creates the status bar controller and subscribes to timer updates.
+   */
   constructor(options: TimerStatusBarControllerOptions) {
     this.element = options.element;
     this.timerService = options.timerService;
@@ -39,11 +45,17 @@ export class TimerStatusBarController {
     });
   }
 
+  /**
+   * Tears down listeners for plugin unload.
+   */
   dispose(): void {
     this.unsubscribe();
     this.element.removeEventListener("click", this.onClick);
   }
 
+  /**
+   * Toggles timer start/stop based on the current running state.
+   */
   private onClick = (): void => {
     if (this.timerService.isRunning()) {
       void this.stopTimer();

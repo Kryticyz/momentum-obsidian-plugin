@@ -1,6 +1,9 @@
 import { formatDateTimeInTimezone } from "../core/timezone";
 import { TimerSnapshot } from "./timerTypes";
 
+/**
+ * Formats elapsed milliseconds as `HH:MM:SS`.
+ */
 export function formatElapsedClock(elapsedMs: number): string {
   const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -13,10 +16,16 @@ export function formatElapsedClock(elapsedMs: number): string {
   return `${hh}:${mm}:${ss}`;
 }
 
+/**
+ * Formats a timer start timestamp for display in the configured timezone.
+ */
 export function formatStartedAtLabel(startedAtMs: number, timezone: string): string {
   return formatDateTimeInTimezone(new Date(startedAtMs), timezone);
 }
 
+/**
+ * Formats the compact status bar timer label.
+ */
 export function formatStatusBarLabel(snapshot: TimerSnapshot): string {
   if (!snapshot.activeTimer) {
     return "⏱ Idle";

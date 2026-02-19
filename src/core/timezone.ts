@@ -3,6 +3,9 @@ export interface ZonedParts {
   time: string;
 }
 
+/**
+ * Formats a Date into `YYYY-MM-DD` and `HH:MM` parts for a target IANA timezone.
+ */
 export function getZonedParts(date: Date, timezone: string): ZonedParts {
   const formatter = new Intl.DateTimeFormat("en-GB", {
     timeZone: timezone,
@@ -29,14 +32,23 @@ export function getZonedParts(date: Date, timezone: string): ZonedParts {
   };
 }
 
+/**
+ * Returns a timezone-formatted ISO-like date string.
+ */
 export function formatDateInTimezone(date: Date, timezone: string): string {
   return getZonedParts(date, timezone).date;
 }
 
+/**
+ * Returns a timezone-formatted 24-hour clock string.
+ */
 export function formatTimeInTimezone(date: Date, timezone: string): string {
   return getZonedParts(date, timezone).time;
 }
 
+/**
+ * Returns a combined date/time label for the given timezone.
+ */
 export function formatDateTimeInTimezone(date: Date, timezone: string): string {
   const parts = getZonedParts(date, timezone);
   return `${parts.date} ${parts.time}`;

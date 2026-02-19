@@ -15,6 +15,9 @@ export interface StopTimerFlowCoreInput {
   notify: (message: string) => void;
 }
 
+/**
+ * Stops the active timer, writes a log line, and emits a completion notice.
+ */
 export async function runStopTimerFlowCore(input: StopTimerFlowCoreInput): Promise<boolean> {
   const stopDetails = input.timerService.getStopDetails();
   if (!stopDetails) {
@@ -47,6 +50,9 @@ export async function runStopTimerFlowCore(input: StopTimerFlowCoreInput): Promi
   return true;
 }
 
+/**
+ * Resolves the final work note from override input or interactive prompt.
+ */
 async function resolveEntryNote(
   noteOverride: string | undefined,
   openTextPrompt: (

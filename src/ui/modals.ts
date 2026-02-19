@@ -12,6 +12,9 @@ import { createSingleResolver } from "./singleResolver";
 export type { PickerItem } from "./pickerTypes";
 export { createSingleResolver } from "./singleResolver";
 
+/**
+ * Opens a picker modal and resolves the selected value, or null on cancel/failure.
+ */
 export function openPickerModal<T>(app: App, title: string, items: PickerItem<T>[]): Promise<T | null> {
   return new Promise((resolve) => {
     try {
@@ -24,6 +27,9 @@ export function openPickerModal<T>(app: App, title: string, items: PickerItem<T>
   });
 }
 
+/**
+ * Opens a text prompt modal and resolves entered text, or null on cancel/failure.
+ */
 export function openTextPromptModal(
   app: App,
   title: string,
@@ -41,6 +47,9 @@ export function openTextPromptModal(
   });
 }
 
+/**
+ * Opens a confirmation modal and resolves true/false based on user choice.
+ */
 export function openConfirmModal(
   app: App,
   title: string,
@@ -59,10 +68,16 @@ export function openConfirmModal(
   });
 }
 
+/**
+ * Generic fuzzy picker modal used by timer/project selection flows.
+ */
 class PickerModal<T> extends FuzzySuggestModal<PickerItem<T>> {
   private readonly items: PickerItem<T>[];
   private readonly resolveOnce: (value: T | null) => boolean;
 
+  /**
+   * Creates the picker modal and wires a single-fire resolver callback.
+   */
   constructor(app: App, title: string, items: PickerItem<T>[], onResolve: (value: T | null) => void) {
     super(app);
     this.items = items;
@@ -70,14 +85,23 @@ class PickerModal<T> extends FuzzySuggestModal<PickerItem<T>> {
     this.setPlaceholder(title);
   }
 
+  /**
+   * Returns all picker candidates for fuzzy matching.
+   */
   getItems(): PickerItem<T>[] {
     return this.items;
   }
 
+  /**
+   * Returns the text label used for matching and display.
+   */
   getItemText(item: PickerItem<T>): string {
     return item.label;
   }
 
+  /**
+   * Renders each picker suggestion with optional detail text.
+   */
   renderSuggestion(match: FuzzyMatch<PickerItem<T>>, el: HTMLElement): void {
     try {
       const item = match.item;
@@ -93,6 +117,9 @@ class PickerModal<T> extends FuzzySuggestModal<PickerItem<T>> {
     }
   }
 
+  /**
+   * Resolves selection and closes the modal on the next tick.
+   */
   onChooseItem(item: PickerItem<T>, _evt: MouseEvent | KeyboardEvent): void {
     this.resolveOnce(item.value);
     window.setTimeout(() => {
@@ -100,6 +127,9 @@ class PickerModal<T> extends FuzzySuggestModal<PickerItem<T>> {
     }, 0);
   }
 
+  /**
+   * Resolves cancellation if no selection has already been committed.
+   */
   onClose(): void {
     // Allow choose callbacks to settle before treating close as cancellation.
     window.setTimeout(() => {
@@ -108,6 +138,9 @@ class PickerModal<T> extends FuzzySuggestModal<PickerItem<T>> {
   }
 }
 
+/**
+ * Modal prompting for short freeform text input.
+ */
 class TextPromptModal extends Modal {
   private readonly title: string;
   private readonly placeholder: string;
@@ -115,6 +148,9 @@ class TextPromptModal extends Modal {
   private readonly onResolve: (value: string | null) => void;
   private resolved = false;
 
+  /**
+   * Creates a prompt modal with title, placeholder, and initial input value.
+   */
   constructor(
     app: App,
     title: string,
@@ -129,6 +165,9 @@ class TextPromptModal extends Modal {
     this.onResolve = onResolve;
   }
 
+  /**
+   * Renders prompt controls and keyboard handlers.
+   */
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
@@ -172,6 +211,9 @@ class TextPromptModal extends Modal {
     });
   }
 
+  /**
+   * Resolves cancellation when the modal closes without explicit save.
+   */
   onClose(): void {
     if (!this.resolved) {
       this.onResolve(null);
@@ -181,6 +223,9 @@ class TextPromptModal extends Modal {
   }
 }
 
+/**
+ * Modal presenting a binary confirm/cancel action.
+ */
 class ConfirmModal extends Modal {
   private readonly title: string;
   private readonly message: string;
@@ -189,6 +234,9 @@ class ConfirmModal extends Modal {
   private readonly onResolve: (confirmed: boolean) => void;
   private resolved = false;
 
+  /**
+   * Creates a confirmation modal with custom button labels.
+   */
   constructor(
     app: App,
     title: string,
@@ -205,6 +253,9 @@ class ConfirmModal extends Modal {
     this.onResolve = onResolve;
   }
 
+  /**
+   * Renders confirmation message and action buttons.
+   */
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
@@ -231,6 +282,9 @@ class ConfirmModal extends Modal {
       });
   }
 
+  /**
+   * Resolves `false` when the modal closes without explicit confirmation.
+   */
   onClose(): void {
     if (!this.resolved) {
       this.onResolve(false);

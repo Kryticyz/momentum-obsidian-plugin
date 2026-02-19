@@ -1,3 +1,6 @@
+/**
+ * Wraps a resolver callback so it can only be invoked once.
+ */
 export function createSingleResolver<T>(
   onResolve: (value: T | null) => void
 ): (value: T | null) => boolean {

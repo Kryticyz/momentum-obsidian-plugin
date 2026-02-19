@@ -12,6 +12,9 @@ export interface FlattenedProject {
   depth: number;
 }
 
+/**
+ * Normalizes tag frontmatter values into lowercase tag tokens without `#`.
+ */
 export function normalizeTags(rawTags: unknown): string[] {
   if (Array.isArray(rawTags)) {
     return rawTags.flatMap((tag) => splitAndNormalizeTag(String(tag)));
@@ -24,10 +27,16 @@ export function normalizeTags(rawTags: unknown): string[] {
   return [];
 }
 
+/**
+ * Returns true when normalized tags include the `project` marker.
+ */
 export function hasProjectTag(rawTags: unknown): boolean {
   return normalizeTags(rawTags).includes("project");
 }
 
+/**
+ * Returns true when the status value is an active marker.
+ */
 export function isActiveStatus(rawStatus: unknown): boolean {
   if (typeof rawStatus !== "string") {
     return false;
@@ -36,6 +45,9 @@ export function isActiveStatus(rawStatus: unknown): boolean {
   return rawStatus.trim().toLowerCase() === "active";
 }
 
+/**
+ * Validates and normalizes due-date frontmatter in ISO date format.
+ */
 export function normalizeDueDate(rawValue: unknown): string | undefined {
   if (typeof rawValue !== "string") {
     return undefined;
@@ -49,6 +61,9 @@ export function normalizeDueDate(rawValue: unknown): string | undefined {
   return value;
 }
 
+/**
+ * Extracts a parent project name from `up` frontmatter entries.
+ */
 export function extractParentProjectName(rawUp: unknown): string | undefined {
   if (Array.isArray(rawUp)) {
     for (const value of rawUp) {
@@ -67,6 +82,9 @@ export function extractParentProjectName(rawUp: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * Produces a deterministic parent/child flattened ordering for project pickers and tables.
+ */
 export function buildProjectHierarchy(projects: ProjectRecord[]): FlattenedProject[] {
   const items = [...projects].sort(compareProjectOrder);
   const byName = new Map<string, ProjectRecord>();
@@ -132,6 +150,9 @@ export function buildProjectHierarchy(projects: ProjectRecord[]): FlattenedProje
   return flattened;
 }
 
+/**
+ * Splits a raw tag string on whitespace/comma boundaries and normalizes each token.
+ */
 function splitAndNormalizeTag(value: string): string[] {
   return value
     .split(/[,\s]+/)
@@ -139,6 +160,9 @@ function splitAndNormalizeTag(value: string): string[] {
     .filter((item) => item.length > 0);
 }
 
+/**
+ * Parses wiki-link-like values and returns the target note basename without `.md`.
+ */
 function parseWikiLink(value: string): string | undefined {
   const trimmed = value.trim();
   if (trimmed.length === 0) {
@@ -157,10 +181,16 @@ function parseWikiLink(value: string): string | undefined {
   return leafName.replace(/\.md$/i, "");
 }
 
+/**
+ * Builds a case-insensitive lookup key for project names.
+ */
 function normalizeProjectKey(name: string): string {
   return name.trim().toLowerCase();
 }
 
+/**
+ * Sorts projects by due date first and then by case-insensitive name.
+ */
 function compareProjectOrder(a: ProjectRecord, b: ProjectRecord): number {
   const aDue = a.dueDate;
   const bDue = b.dueDate;

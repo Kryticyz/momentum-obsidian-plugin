@@ -29,6 +29,9 @@ export const COMMAND_CATALOG: CommandCatalogEntry[] = [
 
 const COMMAND_NAME_BY_ID = new Map(COMMAND_CATALOG.map((command) => [command.id, command.name]));
 
+/**
+ * Resolves a command id to its user-facing command palette name.
+ */
 export function commandName(id: string): string {
   const found = COMMAND_NAME_BY_ID.get(id);
   if (!found) {
