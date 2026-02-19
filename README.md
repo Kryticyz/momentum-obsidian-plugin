@@ -66,6 +66,11 @@ The plugin also shows a clickable timer in the status bar.
 - Auto insert snapshots on note creation
 - Note-create hook delay (for templater timing)
 
+## Network Behavior
+- Default mode (`JSONL file`) is fully local and does not make network requests.
+- `Backend refresh URL` mode sends a single `POST /refresh` request to the configured URL after export.
+- The plugin does not send analytics or telemetry.
+
 ## Repository Layout
 
 - Plugin source: `src/`

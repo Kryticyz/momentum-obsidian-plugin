@@ -22,22 +22,22 @@ export function buildBackendRefreshUrl(baseUrl: string): string {
   return parsed.toString();
 }
 
+export interface BackendRefreshResponse {
+  status: number;
+  body: string;
+}
+
+export type BackendRefreshRequester = (refreshUrl: string) => Promise<BackendRefreshResponse>;
+
 export async function postBackendRefresh(
   baseUrl: string,
-  fetchImpl: typeof fetch = fetch
+  requestImpl: BackendRefreshRequester = defaultRefreshRequest
 ): Promise<string> {
   const refreshUrl = buildBackendRefreshUrl(baseUrl);
 
-  // OpenAPI contract: POST /refresh, no request body.
-  const response = await fetchImpl(refreshUrl, {
-    method: "POST",
-    headers: {
-      Accept: "application/json"
-    }
-  });
-
-  if (!response.ok) {
-    const detail = await safeResponseText(response);
+  const response = await requestImpl(refreshUrl);
+  if (response.status < 200 || response.status >= 300) {
+    const detail = response.body.trim();
     const suffix = detail.length > 0 ? `: ${detail}` : "";
     throw new Error(`backend refresh failed (${response.status}${suffix})`);
   }
@@ -45,10 +45,24 @@ export async function postBackendRefresh(
   return refreshUrl;
 }
 
-async function safeResponseText(response: Response): Promise<string> {
+async function defaultRefreshRequest(refreshUrl: string): Promise<BackendRefreshResponse> {
+  // OpenAPI contract: POST /refresh, no request body.
+  const response = await fetch(refreshUrl, {
+    method: "POST",
+    headers: {
+      Accept: "application/json"
+    }
+  });
+
+  let body = "";
   try {
-    return (await response.text()).trim();
+    body = await response.text();
   } catch (_error) {
-    return "";
+    body = "";
   }
+
+  return {
+    status: response.status,
+    body
+  };
 }

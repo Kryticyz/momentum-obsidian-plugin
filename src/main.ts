@@ -3,6 +3,7 @@ import {
   normalizePath,
   Notice,
   Plugin,
+  requestUrl,
   TAbstractFile,
   TFile
 } from "obsidian";
@@ -433,7 +434,23 @@ export default class MomentumPlugin extends Plugin {
 
     if (this.settings.exportTarget === "backend-refresh") {
       try {
-        const refreshUrl = await postBackendRefresh(this.settings.exportBackendUrl);
+        const refreshUrl = await postBackendRefresh(
+          this.settings.exportBackendUrl,
+          async (url) => {
+            const response = await requestUrl({
+              url,
+              method: "POST",
+              headers: {
+                Accept: "application/json"
+              }
+            });
+
+            return {
+              status: response.status,
+              body: typeof response.text === "string" ? response.text : ""
+            };
+          }
+        );
         new Notice(messages.exportedEntriesAndRefreshedBackend(entries.length, exportPath, refreshUrl));
       } catch (error) {
         console.error("Momentum: backend refresh failed.", error);
